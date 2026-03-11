@@ -1,6 +1,7 @@
 import * as z from 'zod';
 
-export const userUpdateSchema = z.object({
+/** Refinement olmadan base schema - .pick() için kullanılır */
+export const userUpdateBaseSchema = z.object({
   email: z.string().email().optional(), // sadece gösterim, güncellenmez
   name: z.string().min(1, 'Ad gerekli').max(255),
   title: z.string().max(255).optional().nullable(),
@@ -8,8 +9,26 @@ export const userUpdateSchema = z.object({
   role: z.enum(['ADMIN', 'MANAGER', 'USER', 'GUEST']).optional().nullable(),
   isActive: z.boolean(),
   avatarMediaId: z.number().int().positive().nullable().optional(),
-  avatarFile: z.instanceof(File).nullable().optional()
+  avatarFile: z.instanceof(File).nullable().optional(),
+  password: z.string().optional(),
+  passwordConfirm: z.string().optional()
 });
+
+export const userUpdateSchema = userUpdateBaseSchema
+  .refine(
+    (data) => {
+      if (!data.password && !data.passwordConfirm) return true;
+      return data.password === data.passwordConfirm;
+    },
+    { message: 'Şifreler eşleşmiyor', path: ['passwordConfirm'] }
+  )
+  .refine(
+    (data) => {
+      if (!data.password) return true;
+      return data.password.length >= 6;
+    },
+    { message: 'Şifre en az 6 karakter olmalıdır', path: ['password'] }
+  );
 
 export type UserUpdateInput = z.infer<typeof userUpdateSchema>;
 

@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
 import type { UserWithAvatar } from '@/features/users/actions/get-user-by-id';
 import { createUser } from '@/features/users/actions/create-user';
+import { updateUserPassword } from '@/features/users/actions/update-password';
 import { updateUserWithAvatar } from '@/features/users/actions/update-user-with-avatar';
 import {
   userCreateSchema,
@@ -50,7 +51,9 @@ export default function UserForm({ initialData, pageTitle }: UserFormProps) {
           role: (initialData!.role as UserUpdateInput['role']) ?? null,
           isActive: initialData!.isActive ?? true,
           avatarMediaId: initialData!.avatarMediaId ?? null,
-          avatarFile: null
+          avatarFile: null,
+          password: '',
+          passwordConfirm: ''
         }
       : {
           email: '',
@@ -106,6 +109,16 @@ export default function UserForm({ initialData, pageTitle }: UserFormProps) {
         form.setError('root', { message: result.error });
         return;
       }
+
+      const newPassword = (values as UserUpdateInput).password?.trim();
+      if (newPassword) {
+        const pwdResult = await updateUserPassword(initialData.id, newPassword);
+        if (!pwdResult.success) {
+          form.setError('root', { message: pwdResult.error });
+          return;
+        }
+      }
+
       toast.success('Kullanıcı güncellendi.');
       router.push('/dashboard/users');
       router.refresh();
@@ -211,33 +224,46 @@ export default function UserForm({ initialData, pageTitle }: UserFormProps) {
             />
           </div>
 
-          {!isEdit && (
-            <div className='space-y-6 border-t pt-6'>
+          <div className='space-y-6 border-t pt-6'>
+            <div>
               <p className='text-muted-foreground text-sm font-medium'>
-                Giriş Bilgileri
+                {isEdit ? 'Şifre Değiştir' : 'Giriş Bilgileri'}
               </p>
-              <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
-                <FormInput
-                  control={form.control}
-                  name='password'
-                  label='Şifre'
-                  type='password'
-                  placeholder='En az 6 karakter'
-                  required
-                  disabled={isPending}
-                />
-                <FormInput
-                  control={form.control}
-                  name='passwordConfirm'
-                  label='Şifre Tekrar'
-                  type='password'
-                  placeholder='Şifreyi tekrar giriniz'
-                  required
-                  disabled={isPending}
-                />
-              </div>
+              {isEdit && (
+                <p className='text-muted-foreground mt-1 text-xs'>
+                  Değiştirmek istemiyorsanız boş bırakın
+                </p>
+              )}
             </div>
-          )}
+            <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
+              <FormInput
+                control={form.control}
+                name='password'
+                label='Şifre'
+                type='password'
+                placeholder={
+                  isEdit
+                    ? 'Değiştirmek için yeni şifre (opsiyonel)'
+                    : 'En az 6 karakter'
+                }
+                required={!isEdit}
+                disabled={isPending}
+              />
+              <FormInput
+                control={form.control}
+                name='passwordConfirm'
+                label='Şifre Tekrar'
+                type='password'
+                placeholder={
+                  isEdit
+                    ? 'Yeni şifreyi tekrar giriniz'
+                    : 'Şifreyi tekrar giriniz'
+                }
+                required={!isEdit}
+                disabled={isPending}
+              />
+            </div>
+          </div>
 
           <div className='border-t pt-6'>
             <FormSwitch

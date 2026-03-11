@@ -36,18 +36,20 @@ export default async function DashboardLayout({
   const defaultOpen = cookieStore.get('sidebar_state')?.value === 'true';
   return (
     <KBar>
-      <SidebarProvider defaultOpen={defaultOpen}>
-        <InfobarProvider defaultOpen={false}>
-          <AppSidebar />
-          <SidebarInset>
-            <Header />
-            {/* page main content */}
-            {children}
-            {/* page main content ends */}
-          </SidebarInset>
-          <InfoSidebar side='right' />
-        </InfobarProvider>
-      </SidebarProvider>
+      <div className='h-svh overflow-hidden'>
+        <SidebarProvider defaultOpen={defaultOpen} className='h-full'>
+          <InfobarProvider defaultOpen={false}>
+            <AppSidebar />
+            <SidebarInset>
+              <Header />
+              {/* page main content */}
+              {children}
+              {/* page main content ends */}
+            </SidebarInset>
+            <InfoSidebar side='right' />
+          </InfobarProvider>
+        </SidebarProvider>
+      </div>
     </KBar>
   );
 }

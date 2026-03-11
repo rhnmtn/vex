@@ -5,8 +5,9 @@ import { db } from '@/db';
 import { user } from '@/db/drizzle-schema';
 import { and, eq } from 'drizzle-orm';
 import { headers } from 'next/headers';
+import { revalidatePath } from 'next/cache';
 import { uploadMedia, deleteMedia } from '@/features/media/actions/media';
-import { userUpdateSchema } from '@/features/users/schemas/user-schema';
+import { userUpdateBaseSchema } from '@/features/users/schemas/user-schema';
 
 export type UpdateUserWithAvatarResult =
   | { success: true }
@@ -25,9 +26,7 @@ export async function updateUserWithAvatar(
   const [existingUser] = await db
     .select({ avatarMediaId: user.avatarMediaId })
     .from(user)
-    .where(
-      and(eq(user.id, userId), eq(user.companyId, u.companyId))
-    )
+    .where(and(eq(user.id, userId), eq(user.companyId, u.companyId)))
     .limit(1);
 
   if (!existingUser) {
@@ -76,7 +75,7 @@ export async function updateUserWithAvatar(
   const isActiveRawVal =
     isActiveRaw === undefined ? undefined : isActiveRaw !== 'false';
 
-  const parsed = userUpdateSchema
+  const parsed = userUpdateBaseSchema
     .pick({ name: true, title: true, phone: true, role: true, isActive: true })
     .safeParse({
       name: nameRaw,
@@ -109,9 +108,9 @@ export async function updateUserWithAvatar(
   await db
     .update(user)
     .set(updateData as Record<string, unknown>)
-    .where(
-      and(eq(user.id, userId), eq(user.companyId, u.companyId))
-    );
+    .where(and(eq(user.id, userId), eq(user.companyId, u.companyId)));
 
+  revalidatePath('/dashboard/users');
+  revalidatePath(`/dashboard/users/${userId}`);
   return { success: true };
 }

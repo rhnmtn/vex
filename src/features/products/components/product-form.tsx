@@ -68,6 +68,7 @@ export default function ProductForm({
     // Form submission logic would be implemented here
     console.log(values);
     router.push('/dashboard/product');
+    router.refresh();
   }
 
   return (

@@ -4,10 +4,8 @@ import { auth, getSessionUser } from '@/lib/auth';
 import { db } from '@/db';
 import { media } from '@/db/drizzle-schema';
 import { headers } from 'next/headers';
-import {
-  uploadToCloudinary,
-  isCloudinaryConfigured
-} from '@/lib/cloudinary';
+import { revalidatePath } from 'next/cache';
+import { uploadToCloudinary, isCloudinaryConfigured } from '@/lib/cloudinary';
 
 export type CreateMediaResult =
   | { success: true; id: number; path: string }
@@ -19,7 +17,10 @@ export async function createMedia(
   const session = await auth.api.getSession({ headers: await headers() });
   const u = getSessionUser(session);
   if (!u?.companyId) {
-    return { success: false, error: 'Oturum bulunamadı veya şirket atanmamış.' };
+    return {
+      success: false,
+      error: 'Oturum bulunamadı veya şirket atanmamış.'
+    };
   }
 
   const file = formData.get('file') as File | null;
@@ -32,8 +33,7 @@ export async function createMedia(
   if (!isCloudinaryConfigured) {
     return {
       success: false,
-      error:
-        'Cloudinary yapılandırılmamış. Ortam değişkenlerini kontrol edin.'
+      error: 'Cloudinary yapılandırılmamış. Ortam değişkenlerini kontrol edin.'
     };
   }
 
@@ -64,6 +64,7 @@ export async function createMedia(
       })
       .returning({ id: media.id, path: media.path });
 
+    revalidatePath('/dashboard/media');
     return {
       success: true,
       id: inserted!.id,
