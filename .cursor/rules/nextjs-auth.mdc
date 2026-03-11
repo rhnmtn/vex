@@ -1,0 +1,38 @@
+---
+description: Next.js 16 Proxy ve auth koruma kuralları
+alwaysApply: true
+---
+
+# Next.js 16: Proxy ve Auth
+
+## Middleware → Proxy (Next.js 16)
+
+Next.js 16'da **middleware** kaldırıldı, **proxy** kullanılıyor:
+
+- **Dosya**: `middleware.ts` (deprecated) → `proxy.ts`
+- **Fonksiyon**: `middleware()` → `proxy()`
+
+Migration: `npx @next/codemod@canary middleware-to-proxy .`
+
+## Proxy Kullanımı
+
+- **Öneri**: Proxy kullanımından mümkün olduğunca kaçının. Next.js 16, daha iyi API'ler sunmayı hedefliyor.
+- **Proxy amacı**: Proxy, uygulamanın önünde network boundary/gateway katmanıdır; Express middleware ile karıştırılmamalı.
+- **Proje**: `src/proxy.ts` mevcut; minimal passthrough (`NextResponse.next()`). Auth mantığı proxy'de yok.
+
+## Auth Koruması
+
+- **Route koruması**: Layout içinde server-side session kontrolü yapın (`auth.api.getSession`).
+- **Proxy'de auth eklemeyin**: Dashboard koruması layout'ta yapılmalı; bu Next.js 16 önerisiyle uyumludur.
+- **Örnek**:
+
+```tsx
+// src/app/dashboard/layout.tsx
+export default async function DashboardLayout({ children }) {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session) redirect('/auth/sign-in');
+  return <>{children}</>;
+}
+```
+
+- **Auth sayfaları**: Giriş yapmış kullanıcıyı `/auth/*` layout'ta `/dashboard`'a yönlendirin.

@@ -1,0 +1,41 @@
+---
+description: Vexto proje genel bilgisi ve standartları
+alwaysApply: true
+---
+
+# Vexto / KiralaKal — Proje Kuralları
+
+## Proje Özeti
+Premium tatil kiralama platformu. Next.js 16, çok kiracılı (multi-tenant) ERP/dashboard. Şirket bazlı veri izolasyonu; her kayıt bir şirkete bağlı.
+
+## Teknoloji Stack
+| Alan | Teknoloji |
+|------|-----------|
+| Framework | Next.js 16 (App Router) |
+| Dil | TypeScript |
+| Auth | Better Auth (e-posta/şifre, custom session) |
+| DB | PostgreSQL + Drizzle ORM |
+| UI | Shadcn UI, Tailwind CSS v4 |
+| Form | React Hook Form + Zod |
+| URL state | Nuqs |
+| Tablo | TanStack Table + Data Table |
+| Medya | Cloudinary |
+| Editör | Lexical (blog) |
+
+## Path Alias
+- `@/` → `src/`
+
+## Temel Konvansiyonlar
+- **Server components:** Varsayılan; `'use client'` yalnızca gerekirse
+- **Dil:** UI metinleri, hata mesajları, placeholder'lar Türkçe
+- **Package manager:** pnpm
+- **Lint:** ESLint + Prettier, Husky pre-commit
+
+## Klasör Yapısı
+- `src/app/` — Next.js App Router (layout, page, route handlers)
+- `src/features/` — Domain modülleri (actions, components, schemas)
+- `src/components/` — Paylaşılan UI (layout, forms, ui)
+- `src/lib/` — Auth, tenant, cloudinary, utils
+- `src/db/` — Drizzle schema, migrations, migrate.ts
+- `src/config/` — nav-config, data-table, info-config
+- `src/constants/` — metadata, PAGE_TITLES

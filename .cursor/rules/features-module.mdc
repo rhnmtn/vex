@@ -1,0 +1,38 @@
+---
+description: Feature modül yapısı ve CRUD desenleri
+globs: "src/features/**/*"
+alwaysApply: false
+---
+
+# Feature Modül Kuralları
+
+## Klasör Yapısı
+```
+features/[domain]/
+├── actions/           # Server actions (CRUD)
+├── components/         # UI bileşenleri
+│   ├── *-form.tsx     # Form bileşeni
+│   ├── *-view-page.tsx # Detay/düzenle sayfa wrapper
+│   ├── *-listing.tsx  # Liste sayfa (data fetch)
+│   └── *-tables/      # DataTable (columns, index)
+├── schemas/           # Zod validasyon
+└── constants/         # Sabitler (opsiyonel)
+```
+
+## Actions
+- Dosya başına `'use server'`
+- `getTenantContext(await headers())` ile tenant al
+- **Liste:** `effectiveAllowed` veya `computeEffectiveAllowed()` ile filtrele
+- **Create:** `effectiveCompanyId` ile `companyId` ata; null ise hata dön
+- **Update/Delete:** Kaydın `companyId`'si `effectiveAllowed` içinde mi kontrol et
+
+## Schemas
+- Zod ile form validasyonu
+- Türkçe hata mesajları: `.min(1, 'Alan gerekli')`
+- Boş string için: `.optional().or(z.literal(''))`
+- Tip: `z.infer<typeof schema>`
+
+## Components
+- `*-view-page.tsx` — Server component; data fetch, `*-form` render
+- `*-form.tsx` — Client; `useForm`, `zodResolver`, submit handler
+- `*-listing.tsx` — Server; searchParams, tenant, action çağrısı, table render

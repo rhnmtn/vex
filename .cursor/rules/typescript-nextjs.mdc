@@ -1,0 +1,45 @@
+---
+description: TypeScript ve Next.js App Router kuralları
+globs: "**/*.{ts,tsx}"
+alwaysApply: false
+---
+
+# TypeScript & Next.js Kuralları
+
+## Server vs Client
+- **Server component:** Varsayılan. `headers()`, `cookies()`, `redirect()`, `notFound()` kullanıyorsan server.
+- **Client component:** `useState`, `useEffect`, `onClick` vb. varsa dosya başına `'use client'` ekle.
+- **Server action:** Fonksiyon veya dosya başına `'use server'` ekle.
+
+## Page & Layout Props
+```typescript
+type PageProps = {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<SearchParams>;
+};
+export default async function Page(props: PageProps) {
+  const params = await props.params;
+  const searchParams = await props.searchParams;
+  // ...
+}
+```
+
+## Import Sırası
+1. React / Next
+2. Üçüncü parti (drizzle, zod, vb.)
+3. `@/` ile proje modülleri
+4. Relative (gerekirse)
+
+## Server Action Dönüş Formatı
+```typescript
+// Mutasyon (create, update, delete)
+return { success: true } | { success: false; error: string };
+
+// Liste/sorgu
+return { data: T[]; total: number };
+```
+
+## Hata Yönetimi
+- `notFound()` — 404 sayfası
+- `redirect('/path')` — yönlendirme
+- Server action hatalarında `toast.error(result.error)` client'da göster

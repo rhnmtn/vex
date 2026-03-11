@@ -1,0 +1,54 @@
+---
+description: FormMediaPicker ve medya akışı kuralları
+globs: "**/form-media*.tsx,**/*with-media*.ts,**/post-categor*,**/posts/**"
+alwaysApply: false
+---
+
+# Media & Form Kuralları
+
+## FormMediaPicker
+- `FormMediaPicker` — formlara görsel ekleme/kaldırma bileşeni (FileUploader benzeri)
+- Form state: `bannerImageId` (number | null) + `bannerImageFile` (File | null)
+- `existingMedia?: { id, path, filename?, size? }` — düzenleme modunda mevcut görsel
+- `fileFieldName` — dosya alanı adı (varsayılan: `bannerImageFile`)
+- `config`: `maxSize` (10MB), `accept`, `aspectRatio` (video | square | auto)
+
+## Medya Akışı (Kaydet)
+1. **Create:** `bannerImageFile` varsa → `uploadMedia(formData)` → Cloudinary yükle → media tablosuna kaydet → `media.id` al
+2. **Update:** Görsel değiştiyse → önce `deleteMedia(existingId)` (Cloudinary + DB) → sonra `uploadMedia` → yeni `media.id`
+3. **Update:** Görsel kaldırıldıysa → `deleteMedia(existingId)` → entity'de `bannerImageId = null`
+4. **Delete (entity):** Önce `deleteMedia(bannerImageId)` (Cloudinary sil → DB sil) → sonra entity sil
+
+## Media Actions
+- `uploadMedia(formData)` — Cloudinary yükle → media tablosuna kaydet → `{ success, media }` döner
+- `deleteMedia(id)` — Önce Cloudinary'den sil, sonra DB'den sil (postCategories, posts, user referanslarını temizler)
+- `getMediaById(id)` — medya kaydı (tenant kontrolü ile)
+
+## User Avatar
+- `user.avatarMediaId` — media.id FK (users tablosu)
+- Form: `FormMediaPicker` name=`avatarMediaId`, fileFieldName=`avatarFile`
+- `updateUserWithAvatar(userId, formData)` — avatarFile varsa uploadMedia → avatarMediaId; kaldırıldıysa deleteMedia → null
+
+## Örnek Form Submit
+```ts
+// Create
+if (bannerImageFile instanceof File && bannerImageFile.size > 0) {
+  const uploadFormData = new FormData();
+  uploadFormData.set('file', bannerImageFile);
+  const uploadResult = await uploadMedia(uploadFormData);
+  if (!uploadResult.success) return { error: uploadResult.error };
+  bannerImageId = uploadResult.media.id;
+}
+
+// Update - görsel değişti
+if (existingBannerImageId && bannerImageFile instanceof File) {
+  await deleteMedia(existingBannerImageId);
+  const uploadResult = await uploadMedia(uploadFormData);
+  bannerImageId = uploadResult.media.id;
+}
+// Update - görsel kaldırıldı
+if (bannerImageRemoved && existingBannerImageId) {
+  await deleteMedia(existingBannerImageId);
+  bannerImageId = null;
+}
+```

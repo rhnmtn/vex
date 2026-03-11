@@ -1,0 +1,33 @@
+---
+description: Data Table ve Nuqs URL state kuralları
+globs: "**/*table*.tsx,**/*tables/**/*,src/lib/searchparams*"
+alwaysApply: false
+---
+
+# Data Table & Nuqs Kuralları
+
+## TanStack Table
+- `useDataTable` hook — data, columns, pageCount, debounceMs
+- `DataTable` — children: `DataTableToolbar`, table body
+- Kolon `meta`: `variant` (text, select, date), `options`, `placeholder`
+- `enableColumnFilter: true` ile filtre aç
+- Radix ID uyumsuzluğu: tabloyu `mounted` state sonrası render et
+
+## Actions Kolonu
+- **Actions** kolonu her zaman tablonun en sonunda olmalı
+- Actions hücresi sağa yaslanmalı: `cell` içinde `<div className='flex justify-end'><CellAction /></div>` kullan
+
+## Nuqs
+- **Server:** `searchParamsCache.parse(await searchParams)` — sayfa başında
+- **Client:** `useQueryState('page', parseAsInteger.withDefault(1))`
+- **Parametreler:** `page`, `perPage`, `name`/`title`, `status`, `role`, `categoryId`, `companyId`
+- `src/lib/searchparams.ts` — `searchParamsCache`, `serialize`
+
+## Liste Sayfa Yapısı
+```tsx
+<PageContainer scrollable={false} pageTitle="..." pageHeaderAction={<Link>Yeni Ekle</Link>}>
+  <Suspense fallback={<DataTableSkeleton />}>
+    <ListingPage />
+  </Suspense>
+</PageContainer>
+```

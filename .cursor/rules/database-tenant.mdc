@@ -1,0 +1,49 @@
+---
+description: Drizzle ORM ve çok kiracılı (tenant) yapı kuralları
+globs: "src/db/**/*,src/lib/tenant*.ts,src/features/**/schemas/*"
+alwaysApply: false
+---
+
+# Veritabanı & Tenant Kuralları
+
+## Drizzle ORM
+- **Schema:** `src/db/drizzle-schema.ts` — tüm tablo tanımları
+- **Import:** `db` from `@/db`, tablolar `@/db/drizzle-schema`'dan
+- **Migration:** `pnpm db:generate` → `pnpm db:migrate`
+- **Config:** `src/db/drizzle.config.ts`
+
+## Tenant Context (Çok Kiracılı)
+`getTenantContext(await headers())` ile tek çağrıda tüm context alınır.
+
+| Alan | Kaynak | Açıklama |
+|------|--------|----------|
+| `allowedCompanyIds` | Session | Kullanıcının yetkili olduğu şirket id listesi; null = session yok |
+| `selectedCompanyId` | Cookie | Sidebar'dan seçilen şirket; `SELECTED_COMPANY_COOKIE_NAME` |
+| `effectiveAllowed` | Hesaplanan | Liste sorguları için: seçili yetkiliyse [seçili], değilse tüm yetkililer |
+| `effectiveCompanyId` | Hesaplanan | Create için: seçili yetkiliyse seçili, değilse ilk yetkili |
+
+**Terminoloji:** Session'dan gelen `allowedCompanyIds` — kullanıcının yetkili olduğu şirket id listesi (çoğul "yetkili şirketler" yerine "yetkili şirket" kavramı kullanılır).
+
+## Liste Sorguları
+```typescript
+const { allowedCompanyIds, selectedCompanyId } = await getTenantContext(await headers());
+const effectiveAllowed = computeEffectiveAllowed(allowedCompanyIds, selectedCompanyId);
+
+if (effectiveAllowed != null && effectiveAllowed.length === 0) {
+  return { data: [], total: 0 }; // Yetkili şirket yok
+}
+conditions.push(inArray(table.companyId, effectiveAllowed ?? []));
+```
+
+## Create İşlemleri
+```typescript
+const { effectiveCompanyId } = await getTenantContext(await headers());
+if (!effectiveCompanyId) {
+  return { success: false, error: 'Yetkili şirket bulunamadı' };
+}
+await db.insert(table).values({ ...data, companyId: effectiveCompanyId });
+```
+
+## Soft Delete
+- `deletedAt` alanı varsa: `isNull(table.deletedAt)` koşuluna ekle
+- Silme: `deletedAt: new Date()` ile güncelle, fiziksel silme yapma

@@ -1,0 +1,39 @@
+---
+description: Form, validasyon ve UI bileşen kuralları
+globs: "**/*form*.tsx,src/components/forms/**/*"
+alwaysApply: false
+---
+
+# Form & UI Kuralları
+
+## React Hook Form + Zod
+```typescript
+const form = useForm<FormInput>({
+  resolver: zodResolver(schema) as Resolver<FormInput>,
+  defaultValues: { ... }
+});
+<Form form={form} onSubmit={form.handleSubmit(onSubmit)}>
+```
+
+## Form Bileşenleri
+- `FormInput`, `FormSelect`, `FormSwitch`, `FormTextarea` — `components/forms/`
+- `control={form.control}` ile bağla
+- `disabled={form.formState.isSubmitting}` — submit sırasında devre dışı
+- `required` prop ile zorunlu alan işareti
+
+## Shadcn UI
+- `components/ui/` — Card, Button, Input, Dialog, Select, Popover
+- `cn()` ile class birleştir: `cn('base', condition && 'extra')`
+- Tailwind ile stil; yeni bileşen eklerken `npx shadcn@latest add` kullan
+
+## Form Card Yapısı
+```tsx
+<Card>
+  <CardHeader className="sticky top-0 ...">
+    <CardTitle>{pageTitle}</CardTitle>
+  </CardHeader>
+  <CardContent>
+    <Form>...</Form>
+  </CardContent>
+</Card>
+```
