@@ -1,3 +1,4 @@
+import { formViewport } from '@/config/viewport';
 import KBar from '@/components/kbar';
 import AppSidebar from '@/components/layout/app-sidebar';
 import Header from '@/components/layout/header';
@@ -8,6 +9,8 @@ import { auth } from '@/lib/auth';
 import type { Metadata } from 'next';
 import { cookies, headers } from 'next/headers';
 import { redirect } from 'next/navigation';
+
+export const viewport = formViewport;
 
 export const metadata: Metadata = {
   title: 'Next Shadcn Dashboard Starter',
