@@ -2,12 +2,12 @@
 
 import { db } from '@/db';
 import {
-  companies,
   media,
   postCategories,
   postCategoryAssignments,
   posts
 } from '@/db/drizzle-schema';
+import { getPublicWebCompany } from '@/lib/public-web-company';
 import { and, asc, desc, eq, inArray, lte, sql } from 'drizzle-orm';
 
 export type PublicPost = {
@@ -32,17 +32,13 @@ export async function getPublicBlogData(): Promise<{
   categories: PublicCategoryWithPosts[];
   totalPosts: number;
 }> {
-  const [firstCompany] = await db
-    .select({ id: companies.id })
-    .from(companies)
-    .where(sql`${companies.deletedAt} IS NULL`)
-    .limit(1);
+  const company = await getPublicWebCompany();
 
-  if (!firstCompany) {
+  if (!company) {
     return { categories: [], totalPosts: 0 };
   }
 
-  const companyId = firstCompany.id;
+  const companyId = company.id;
   const now = new Date();
 
   const activeCategories = await db
@@ -149,13 +145,9 @@ export async function getPublicBlogData(): Promise<{
 
 /** Slug ile tek bir yayınlanmış blog yazısı döner. Auth gerekmez. */
 export async function getPublicPostBySlug(slug: string) {
-  const [firstCompany] = await db
-    .select({ id: companies.id })
-    .from(companies)
-    .where(sql`${companies.deletedAt} IS NULL`)
-    .limit(1);
+  const company = await getPublicWebCompany();
 
-  if (!firstCompany) return null;
+  if (!company) return null;
 
   const now = new Date();
   const [row] = await db
@@ -172,7 +164,7 @@ export async function getPublicPostBySlug(slug: string) {
     .leftJoin(media, eq(posts.featuredImageId, media.id))
     .where(
       and(
-        eq(posts.companyId, firstCompany.id),
+        eq(posts.companyId, company.id),
         eq(posts.slug, slug),
         eq(posts.isActive, true),
         lte(posts.publishedAt, now),

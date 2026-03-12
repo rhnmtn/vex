@@ -1,16 +1,19 @@
 import { PublicFooter } from '@/components/layout/public-footer';
 import { PublicHeader } from '@/components/layout/public-header';
+import { getPublicWebCompany } from '@/lib/public-web-company';
 
-export default function MarketingLayout({
+export default async function WebLayout({
   children
 }: {
   children: React.ReactNode;
 }) {
+  const company = await getPublicWebCompany();
+
   return (
     <div className='flex min-h-screen flex-col'>
-      <PublicHeader />
+      <PublicHeader company={company} />
       <main className='w-full flex-1'>{children}</main>
-      <PublicFooter />
+      <PublicFooter company={company} />
     </div>
   );
 }

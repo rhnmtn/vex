@@ -1,7 +1,16 @@
+import type { PublicWebCompany } from '@/lib/public-web-company';
 import Link from 'next/link';
 
-export function PublicFooter() {
+type PublicFooterProps = {
+  company?: PublicWebCompany | null;
+};
+
+export function PublicFooter({ company = null }: PublicFooterProps) {
   const currentYear = new Date().getFullYear();
+  const brandName = company?.shortName ?? company?.name ?? 'Vex';
+  const description =
+    company?.description ??
+    'Production-ready admin dashboard starter built with Next.js, Tailwind CSS, and shadcn/ui.';
 
   return (
     <footer className='bg-muted/30 border-t'>
@@ -9,11 +18,10 @@ export function PublicFooter() {
         <div className='flex flex-col gap-8 md:flex-row md:items-center md:justify-between'>
           <div className='flex flex-col gap-4'>
             <Link href='/' className='text-foreground text-lg font-semibold'>
-              Vex
+              {brandName}
             </Link>
             <p className='text-muted-foreground max-w-md text-sm'>
-              Production-ready admin dashboard starter built with Next.js,
-              Tailwind CSS, and shadcn/ui.
+              {description}
             </p>
           </div>
 
@@ -22,33 +30,32 @@ export function PublicFooter() {
               href='/'
               className='text-muted-foreground hover:text-foreground text-sm font-medium transition-colors'
             >
-              Home
+              Ana Sayfa
             </Link>
             <Link
               href='/about'
               className='text-muted-foreground hover:text-foreground text-sm font-medium transition-colors'
             >
-              About
+              Hakkımızda
             </Link>
             <Link
               href='/privacy-policy'
               className='text-muted-foreground hover:text-foreground text-sm font-medium transition-colors'
             >
-              Privacy Policy
+              Gizlilik Politikası
             </Link>
             <Link
               href='/terms-of-service'
               className='text-muted-foreground hover:text-foreground text-sm font-medium transition-colors'
             >
-              Terms of Service
+              Kullanım Koşulları
             </Link>
           </div>
         </div>
 
         <div className='border-border mt-8 flex flex-col gap-4 border-t pt-8 sm:flex-row sm:items-center sm:justify-between'>
           <p className='text-muted-foreground text-sm'>
-            © {currentYear} Vex. Built with Next.js, Tailwind CSS, and
-            shadcn/ui.
+            © {currentYear} {brandName}
           </p>
         </div>
       </div>

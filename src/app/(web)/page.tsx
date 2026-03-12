@@ -2,14 +2,21 @@ import { BlogCard, Hero } from '@/components/shared';
 import { getPublicBlogData } from '@/features/posts/actions/get-public-blog';
 import { BlogEmptyState } from '@/features/posts/components/blog-empty-state';
 import type { PublicCategoryWithPosts } from '@/features/posts/actions/get-public-blog';
-import { Metadata } from 'next';
+import { getPublicWebCompany } from '@/lib/public-web-company';
+import type { Metadata } from 'next';
 import Image from 'next/image';
 
-export const metadata: Metadata = {
-  title: 'KiralaKal — Kısa Konaklama',
-  description:
-    'KiralaKal ile kısa süreli tatil kiralama. Premium konaklama seçenekleri.'
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const company = await getPublicWebCompany();
+  const brandName = company?.shortName ?? company?.name ?? 'KiralaKal';
+
+  return {
+    title: `${brandName} — Kısa Konaklama`,
+    description:
+      company?.description ??
+      'Kısa süreli tatil kiralama. Premium konaklama seçenekleri.'
+  };
+}
 
 function CategorySection({ category }: { category: PublicCategoryWithPosts }) {
   return (
