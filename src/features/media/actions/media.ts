@@ -1,6 +1,7 @@
 'use server';
 
 import { auth, getSessionUser } from '@/lib/auth';
+import { getMediaById } from '@/features/media/actions/get-media';
 import { db } from '@/db';
 import {
   media,
@@ -102,26 +103,9 @@ export async function uploadMedia(
   } catch (e) {
     const err = e as Error & { error?: { message?: string } };
     const message =
-      err?.message ||
-      err?.error?.message ||
-      'Görsel yüklenirken hata oluştu.';
+      err?.message || err?.error?.message || 'Görsel yüklenirken hata oluştu.';
     return { success: false, error: message };
   }
-}
-
-export async function getMediaById(id: number): Promise<Media | null> {
-  const session = await auth.api.getSession({ headers: await headers() });
-  const u = getSessionUser(session);
-  if (!u?.companyId) return null;
-
-  const [row] = await db
-    .select()
-    .from(media)
-    .where(eq(media.id, id))
-    .limit(1);
-
-  if (!row || row.companyId !== u.companyId) return null;
-  return row;
 }
 
 /**
@@ -148,7 +132,11 @@ export async function deleteMedia(
       try {
         await deleteFromCloudinary(mediaRow.publicId);
       } catch (cloudErr) {
-        console.warn('[deleteMedia] Cloudinary silme hatası:', mediaRow.publicId, cloudErr);
+        console.warn(
+          '[deleteMedia] Cloudinary silme hatası:',
+          mediaRow.publicId,
+          cloudErr
+        );
       }
     }
 
@@ -173,9 +161,7 @@ export async function deleteMedia(
   } catch (e) {
     const err = e as Error & { error?: { message?: string } };
     const message =
-      err?.message ||
-      err?.error?.message ||
-      'Medya silinirken hata oluştu.';
+      err?.message || err?.error?.message || 'Medya silinirken hata oluştu.';
     return { success: false, error: message };
   }
 }

@@ -26,31 +26,31 @@ export function DataTablePagination<TData>({
   return (
     <div
       className={cn(
-        'flex w-full flex-col-reverse items-center justify-between gap-2 overflow-auto p-1 sm:flex-row sm:gap-4 lg:gap-8',
+        'text-muted-foreground flex w-full flex-wrap items-center justify-between gap-x-3 gap-y-1.5 overflow-auto p-1 text-xs',
         className
       )}
       {...props}
     >
-      <div className='text-muted-foreground flex-1 text-sm whitespace-nowrap'>
+      <span className='whitespace-nowrap'>
         {table.getFilteredSelectedRowModel().rows.length > 0 ? (
           <>
-            {table.getFilteredSelectedRowModel().rows.length} of{' '}
-            {table.getFilteredRowModel().rows.length} row(s) selected.
+            {table.getFilteredSelectedRowModel().rows.length} /{' '}
+            {table.getFilteredRowModel().rows.length} seçili
           </>
         ) : (
-          <>{table.getFilteredRowModel().rows.length} row(s) total.</>
+          <>{table.getFilteredRowModel().rows.length} kayıt</>
         )}
-      </div>
-      <div className='flex flex-col-reverse items-center gap-4 sm:flex-row sm:gap-6 lg:gap-8'>
-        <div className='flex items-center space-x-2'>
-          <p className='text-sm font-medium whitespace-nowrap'>Rows per page</p>
+      </span>
+      <div className='flex items-center gap-x-3'>
+        <div className='flex items-center gap-x-1.5'>
+          <span className='whitespace-nowrap'>Sayfa başına</span>
           <Select
             value={`${table.getState().pagination.pageSize}`}
             onValueChange={(value) => {
               table.setPageSize(Number(value));
             }}
           >
-            <SelectTrigger className='h-8 w-[4.5rem] [&[data-size]]:h-8'>
+            <SelectTrigger className='h-6 min-w-14 text-xs [&[data-size]]:h-6'>
               <SelectValue placeholder={table.getState().pagination.pageSize} />
             </SelectTrigger>
             <SelectContent side='top'>
@@ -62,50 +62,49 @@ export function DataTablePagination<TData>({
             </SelectContent>
           </Select>
         </div>
-        <div className='flex items-center justify-center text-sm font-medium'>
-          Page {table.getState().pagination.pageIndex + 1} of{' '}
-          {table.getPageCount()}
-        </div>
-        <div className='flex items-center space-x-2'>
+        <span className='whitespace-nowrap'>
+          {table.getState().pagination.pageIndex + 1} / {table.getPageCount()}
+        </span>
+        <div className='flex items-center gap-x-0.5'>
           <Button
-            aria-label='Go to first page'
+            aria-label='İlk sayfa'
             variant='outline'
             size='icon'
-            className='hidden size-8 lg:flex'
+            className='hidden h-6 w-6 lg:flex'
             onClick={() => table.setPageIndex(0)}
             disabled={!table.getCanPreviousPage()}
           >
-            <ChevronsLeft />
+            <ChevronsLeft className='h-3 w-3' />
           </Button>
           <Button
-            aria-label='Go to previous page'
+            aria-label='Önceki sayfa'
             variant='outline'
             size='icon'
-            className='size-8'
+            className='h-6 w-6'
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
           >
-            <ChevronLeftIcon />
+            <ChevronLeftIcon className='h-3 w-3' />
           </Button>
           <Button
-            aria-label='Go to next page'
+            aria-label='Sonraki sayfa'
             variant='outline'
             size='icon'
-            className='size-8'
+            className='h-6 w-6'
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
           >
-            <ChevronRightIcon />
+            <ChevronRightIcon className='h-3 w-3' />
           </Button>
           <Button
-            aria-label='Go to last page'
+            aria-label='Son sayfa'
             variant='outline'
             size='icon'
-            className='hidden size-8 lg:flex'
+            className='hidden h-6 w-6 lg:flex'
             onClick={() => table.setPageIndex(table.getPageCount() - 1)}
             disabled={!table.getCanNextPage()}
           >
-            <ChevronsRight />
+            <ChevronsRight className='h-3 w-3' />
           </Button>
         </div>
       </div>

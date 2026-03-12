@@ -10,12 +10,7 @@ export default async function PostCategoryViewPage({
   postCategoryId
 }: PostCategoryViewPageProps) {
   if (postCategoryId === 'new') {
-    return (
-      <PostCategoryForm
-        initialData={null}
-        pageTitle='Yeni Kategori'
-      />
-    );
+    return <PostCategoryForm initialData={null} pageTitle='Yeni Kategori' />;
   }
 
   const id = parseInt(postCategoryId, 10);
@@ -30,7 +25,7 @@ export default async function PostCategoryViewPage({
 
   let bannerImagePath: string | null = null;
   if (category.bannerImageId) {
-    const { getMediaById } = await import('@/features/media/actions/media');
+    const { getMediaById } = await import('@/features/media/actions/get-media');
     const media = await getMediaById(category.bannerImageId);
     bannerImagePath = media?.path ?? null;
   }

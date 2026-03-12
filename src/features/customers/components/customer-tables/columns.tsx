@@ -1,10 +1,13 @@
 'use client';
 
-import { Badge } from '@/components/ui/badge';
 import { DataTableColumnHeader } from '@/components/ui/table/data-table-column-header';
+import {
+  createActionsColumn,
+  createStatusColumn
+} from '@/components/ui/table/column-helpers';
 import type { CustomerRow } from '@/features/customers/actions/get-customers';
 import { Column, ColumnDef } from '@tanstack/react-table';
-import { CheckCircle2, Text, XCircle } from 'lucide-react';
+import { Text } from 'lucide-react';
 import { CellAction } from './cell-action';
 
 export type { CustomerRow };
@@ -45,38 +48,6 @@ export const columns: ColumnDef<CustomerRow>[] = [
     accessorKey: 'taxNumber',
     header: 'Vergi No'
   },
-  {
-    id: 'isActive',
-    accessorKey: 'isActive',
-    header: ({ column }: { column: Column<CustomerRow, unknown> }) => (
-      <DataTableColumnHeader column={column} title='Durum' />
-    ),
-    cell: ({ cell }) => {
-      const isActive = cell.getValue<CustomerRow['isActive']>();
-      const Icon = isActive ? CheckCircle2 : XCircle;
-      return (
-        <Badge variant='outline' className='capitalize'>
-          <Icon className='mr-1 h-3 w-3' />
-          {isActive ? 'Aktif' : 'Pasif'}
-        </Badge>
-      );
-    },
-    enableColumnFilter: true,
-    meta: {
-      label: 'Durum',
-      variant: 'select',
-      options: [
-        { value: 'true', label: 'Aktif' },
-        { value: 'false', label: 'Pasif' }
-      ]
-    }
-  },
-  {
-    id: 'actions',
-    cell: ({ row }) => (
-      <div className='flex justify-end'>
-        <CellAction data={row.original} />
-      </div>
-    )
-  }
+  createStatusColumn<CustomerRow>(),
+  createActionsColumn<CustomerRow>(CellAction)
 ];

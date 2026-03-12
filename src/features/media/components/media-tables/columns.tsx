@@ -1,5 +1,6 @@
 'use client';
 
+import { createActionsColumn } from '@/components/ui/table/column-helpers';
 import { DataTableColumnHeader } from '@/components/ui/table/data-table-column-header';
 import { Column, ColumnDef } from '@tanstack/react-table';
 import { Text } from 'lucide-react';
@@ -90,12 +91,5 @@ export const columns: ColumnDef<MediaRow>[] = [
       );
     }
   },
-  {
-    id: 'actions',
-    cell: ({ row }) => (
-      <div className='flex justify-end'>
-        <CellAction data={row.original} />
-      </div>
-    )
-  }
+  createActionsColumn<MediaRow>(CellAction)
 ];

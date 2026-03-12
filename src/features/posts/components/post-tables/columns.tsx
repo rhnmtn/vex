@@ -1,44 +1,26 @@
 'use client';
 
-import { Badge } from '@/components/ui/badge';
 import { DataTableColumnHeader } from '@/components/ui/table/data-table-column-header';
+import {
+  createActionsColumn,
+  createImageColumn,
+  createStatusColumn
+} from '@/components/ui/table/column-helpers';
 import type { PostRow } from '@/features/posts/actions/get-posts';
 import { Column, ColumnDef } from '@tanstack/react-table';
 import { format } from 'date-fns';
 import { tr } from 'date-fns/locale';
-import { CheckCircle2, Text, XCircle } from 'lucide-react';
-import Image from 'next/image';
+import { Text } from 'lucide-react';
 import { CellAction } from './cell-action';
 
 export type { PostRow };
 
 export const columns: ColumnDef<PostRow>[] = [
-  {
-    id: 'image',
-    header: '',
-    cell: ({ row }) => {
-      const featuredImagePath = row.original.featuredImagePath;
-      const title = row.original.title;
-      if (featuredImagePath) {
-        return (
-          <div className='relative h-10 w-10 shrink-0 overflow-hidden rounded-md'>
-            <Image
-              src={featuredImagePath}
-              alt={title}
-              fill
-              className='object-cover'
-              sizes='40px'
-            />
-          </div>
-        );
-      }
-      return (
-        <div className='bg-muted flex h-10 w-10 shrink-0 items-center justify-center rounded-md text-xs font-medium text-muted-foreground'>
-          —
-        </div>
-      );
-    }
-  },
+  createImageColumn<PostRow>({
+    imagePathKey: 'featuredImagePath',
+    fallbackKey: 'title',
+    id: 'image'
+  }),
   {
     id: 'title',
     accessorKey: 'title',
@@ -58,32 +40,7 @@ export const columns: ColumnDef<PostRow>[] = [
     accessorKey: 'slug',
     header: 'Slug'
   },
-  {
-    id: 'isActive',
-    accessorKey: 'isActive',
-    header: ({ column }: { column: Column<PostRow, unknown> }) => (
-      <DataTableColumnHeader column={column} title='Durum' />
-    ),
-    cell: ({ cell }) => {
-      const isActive = cell.getValue<PostRow['isActive']>();
-      const Icon = isActive ? CheckCircle2 : XCircle;
-      return (
-        <Badge variant='outline' className='capitalize'>
-          <Icon className='mr-1 h-3 w-3' />
-          {isActive ? 'Aktif' : 'Pasif'}
-        </Badge>
-      );
-    },
-    enableColumnFilter: true,
-    meta: {
-      label: 'Durum',
-      variant: 'select',
-      options: [
-        { value: 'true', label: 'Aktif' },
-        { value: 'false', label: 'Pasif' }
-      ]
-    }
-  },
+  createStatusColumn<PostRow>(),
   {
     id: 'publishedAt',
     accessorKey: 'publishedAt',
@@ -99,12 +56,5 @@ export const columns: ColumnDef<PostRow>[] = [
       );
     }
   },
-  {
-    id: 'actions',
-    cell: ({ row }) => (
-      <div className='flex justify-end'>
-        <CellAction data={row.original} />
-      </div>
-    )
-  }
+  createActionsColumn<PostRow>(CellAction)
 ];

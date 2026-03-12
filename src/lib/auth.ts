@@ -3,7 +3,7 @@ import { APIError, createAuthMiddleware } from 'better-auth/api';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { nextCookies } from 'better-auth/next-js';
 import { admin, customSession } from 'better-auth/plugins';
-import { eq } from 'drizzle-orm';
+import { eq, leftJoin } from 'drizzle-orm';
 import { db } from '@/db';
 import { companies, user } from '@/db/drizzle-schema';
 
@@ -53,9 +53,12 @@ export const auth = betterAuth({
         .select({
           role: user.role,
           isActive: user.isActive,
-          companyId: user.companyId
+          companyId: user.companyId,
+          companyShortName: companies.shortName,
+          companyName: companies.name
         })
         .from(user)
+        .leftJoin(companies, eq(user.companyId, companies.id))
         .where(eq(user.id, session.userId))
         .limit(1);
       const role =
@@ -63,15 +66,7 @@ export const auth = betterAuth({
       const isActive = row?.isActive ?? true;
       const allowedCompanyIds: AllowedCompanyIds =
         row?.companyId != null ? [row.companyId] : [];
-      let companyName: string | null = null;
-      if (row?.companyId != null) {
-        const [company] = await db
-          .select({ name: companies.name, shortName: companies.shortName })
-          .from(companies)
-          .where(eq(companies.id, row.companyId))
-          .limit(1);
-        companyName = company?.shortName ?? company?.name ?? null;
-      }
+      const companyName = row?.companyShortName ?? row?.companyName ?? null;
       return {
         user: {
           ...authUser,
