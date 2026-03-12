@@ -15,7 +15,7 @@ export default async function AuthLayout({
   }
 
   return (
-    <div className='relative flex h-dvh min-h-screen flex-col overflow-hidden md:grid lg:max-w-none lg:grid-cols-2 lg:px-0'>
+    <div className='relative flex min-h-svh flex-col overflow-hidden md:grid lg:max-w-none lg:grid-cols-2 lg:px-0'>
       <AuthPageLink />
       <AuthLayoutPanel />
       <div className='flex min-h-0 flex-1 flex-col overflow-y-auto'>

@@ -21,7 +21,14 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: META_THEME_COLORS.light
+  themeColor: META_THEME_COLORS.light,
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: 'cover',
+  // Klavye açıldığında viewport yeniden boyutlanmaz; mobil kayma sorunlarını önler (Chrome 108+, Firefox 132+)
+  interactiveWidget: 'overlays-content'
 };
 
 export default async function RootLayout({
