@@ -4,7 +4,13 @@ import { FormInput } from '@/components/forms/form-input';
 import { FormMediaPicker } from '@/components/forms/form-media-picker';
 import { FormSwitch } from '@/components/forms/form-switch';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
+} from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
 import { LexicalEditor, editorStateToJson } from '@/features/editor';
 import { createPostCategory } from '@/features/post-categories/actions/create-post-category';
@@ -32,14 +38,19 @@ export type PostCategoryFormData = {
   bannerImagePath?: string | null;
 } | null;
 
+const POST_CATEGORY_FORM_INFO =
+  'Kategori adı ve slug zorunludur. Banner görseli opsiyoneldir. Kaydet ile form gönderilir.';
+
 interface PostCategoryFormProps {
   initialData: PostCategoryFormData;
   pageTitle: string;
+  pageDescription?: string;
 }
 
 export default function PostCategoryForm({
   initialData,
-  pageTitle
+  pageTitle,
+  pageDescription = POST_CATEGORY_FORM_INFO
 }: PostCategoryFormProps) {
   const router = useRouter();
   const isEdit = !!initialData?.id;
@@ -100,7 +111,9 @@ export default function PostCategoryForm({
         isActive: values.isActive,
         bannerImageId: values.bannerImageId,
         bannerImageFile:
-          values.bannerImageFile instanceof File ? values.bannerImageFile : null,
+          values.bannerImageFile instanceof File
+            ? values.bannerImageFile
+            : null,
         bannerRemoved
       });
       if (!result.success) {
@@ -134,6 +147,9 @@ export default function PostCategoryForm({
         <CardTitle className='text-left text-2xl font-bold'>
           {pageTitle}
         </CardTitle>
+        <CardDescription className='text-left'>
+          {pageDescription}
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <Form
@@ -189,7 +205,7 @@ export default function PostCategoryForm({
             />
           </div>
 
-          <div className='space-y-4 rounded-lg border border-border bg-muted/30 p-4'>
+          <div className='border-border bg-muted/30 space-y-4 rounded-lg border p-4'>
             <h3 className='font-medium'>Meta</h3>
             <p className='text-muted-foreground text-sm'>
               URL yolu ve arama motoru için meta bilgileri

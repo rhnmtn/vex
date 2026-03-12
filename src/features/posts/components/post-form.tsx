@@ -6,7 +6,13 @@ import { FormSwitch } from '@/components/forms/form-switch';
 import { FormDatePicker } from '@/components/forms/form-date-picker';
 import { FormComboboxMulti } from '@/components/forms/form-combobox-multi';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
+} from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
 import { LexicalEditor, editorStateToJson } from '@/features/editor';
 import { getPostCategoriesList } from '@/features/post-categories/actions/get-post-categories-list';
@@ -41,11 +47,16 @@ export type PostFormData = {
 interface PostFormProps {
   initialData: PostFormData;
   pageTitle: string;
+  pageDescription?: string;
 }
+
+const POST_FORM_INFO =
+  'Başlık ve slug zorunludur. Kategori seçimi ve yayın tarihi opsiyoneldir. Kaydet ile form gönderilir.';
 
 export default function PostForm({
   initialData,
-  pageTitle
+  pageTitle,
+  pageDescription = POST_FORM_INFO
 }: PostFormProps) {
   const router = useRouter();
   const isEdit = !!initialData?.id;
@@ -105,13 +116,17 @@ export default function PostForm({
   );
 
   async function onSubmit(values: PostFormValues) {
-    const categoryIds = values.categoryIds.map((id) => parseInt(id, 10)).filter((n) => !isNaN(n));
+    const categoryIds = values.categoryIds
+      .map((id) => parseInt(id, 10))
+      .filter((n) => !isNaN(n));
 
     if (isEdit) {
       const hadFeatured = !!initialData?.featuredImageId;
       const hasFeaturedNow =
         !!values.featuredImageId ||
-        !!(values.featuredImageFile && values.featuredImageFile instanceof File);
+        !!(
+          values.featuredImageFile && values.featuredImageFile instanceof File
+        );
       const featuredRemoved = hadFeatured && !hasFeaturedNow;
 
       const result = await updatePost(initialData!.id, {
@@ -125,7 +140,9 @@ export default function PostForm({
         publishedAt: values.publishedAt,
         categoryIds,
         featuredImageFile:
-          values.featuredImageFile instanceof File ? values.featuredImageFile : null,
+          values.featuredImageFile instanceof File
+            ? values.featuredImageFile
+            : null,
         featuredImageRemoved: featuredRemoved
       });
       if (!result.success) {
@@ -144,7 +161,9 @@ export default function PostForm({
         publishedAt: values.publishedAt,
         categoryIds,
         featuredImageFile:
-          values.featuredImageFile instanceof File ? values.featuredImageFile : null
+          values.featuredImageFile instanceof File
+            ? values.featuredImageFile
+            : null
       });
       if (!result.success) {
         form.setError('root', { message: result.error });
@@ -162,6 +181,9 @@ export default function PostForm({
         <CardTitle className='text-left text-2xl font-bold'>
           {pageTitle}
         </CardTitle>
+        <CardDescription className='text-left'>
+          {pageDescription}
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <Form
@@ -179,7 +201,7 @@ export default function PostForm({
             control={form.control}
             name='title'
             label='Başlık'
-            placeholder='Yazı başlığı'
+            placeholder='Blog başlığı'
             required
             onBlur={handleTitleBlur}
           />
@@ -189,7 +211,7 @@ export default function PostForm({
             name='featuredImageId'
             fileFieldName='featuredImageFile'
             label='Öne Çıkan Görsel'
-            description='Yazı öne çıkan görseli (opsiyonel)'
+            description='Blog öne çıkan görseli (opsiyonel)'
             existingMedia={existingFeaturedMedia}
             config={{
               maxSize: 5 * 1024 * 1024,
@@ -202,7 +224,7 @@ export default function PostForm({
               control={form.control}
               name='categoryIds'
               label='Kategoriler'
-              description='Yazıyı hangi kategorilere atayacaksınız?'
+              description='Blogu hangi kategorilere atayacaksınız?'
               options={categoryOptions}
               placeholder='Kategori seçin...'
               emptyText='Kategori bulunamadı.'
@@ -214,7 +236,7 @@ export default function PostForm({
             <LexicalEditor
               initialContent={initialData?.content ?? undefined}
               onChange={handleContentChange}
-              placeholder='Yazı içeriğini buraya yazın...'
+              placeholder='Blog içeriğini buraya yazın...'
               showToolbar
               className='min-h-[320px]'
             />
@@ -225,13 +247,13 @@ export default function PostForm({
               control={form.control}
               name='isActive'
               label='Aktif'
-              description='Yazı aktif listede görünür'
+              description='Blog aktif listede görünür'
             />
             <FormSwitch
               control={form.control}
               name='isSticky'
               label='Öne Sabitlenmiş'
-              description='Yazı listenin üstünde sabitlenir'
+              description='Blog listenin üstünde sabitlenir'
             />
           </div>
 
@@ -239,14 +261,14 @@ export default function PostForm({
             control={form.control}
             name='publishedAt'
             label='Yayın Tarihi'
-            description='Boş bırakırsanız yazı taslak kalır'
+            description='Boş bırakırsanız blog taslak kalır'
             config={{
               placeholder: 'Yayın tarihi ve saati seçin (opsiyonel)',
               showTime: true
             }}
           />
 
-          <div className='space-y-4 rounded-lg border border-border bg-muted/30 p-4'>
+          <div className='border-border bg-muted/30 space-y-4 rounded-lg border p-4'>
             <h3 className='font-medium'>Meta</h3>
             <p className='text-muted-foreground text-sm'>
               URL yolu ve arama motoru için meta bilgileri

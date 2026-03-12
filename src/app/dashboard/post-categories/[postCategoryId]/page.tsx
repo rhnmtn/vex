@@ -4,7 +4,7 @@ import PostCategoryViewPage from '@/features/post-categories/components/post-cat
 import { Suspense } from 'react';
 
 export const metadata = {
-  title: 'Dashboard: Yazı Kategorisi'
+  title: 'Dashboard: Blog Kategorisi'
 };
 
 type PageProps = { params: Promise<{ postCategoryId: string }> };

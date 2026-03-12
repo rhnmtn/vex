@@ -11,7 +11,7 @@ import { Suspense } from 'react';
 import { postCategoriesInfoContent } from '@/config/infoconfig';
 
 export const metadata = {
-  title: 'Dashboard: Yazı Kategorileri'
+  title: 'Dashboard: Blog Kategorileri'
 };
 
 type PageProps = {
@@ -25,7 +25,7 @@ export default async function Page(props: PageProps) {
   return (
     <PageContainer
       scrollable={false}
-      pageTitle='Yazı Kategorileri'
+      pageTitle='Blog Kategorileri'
       pageDescription='Blog yazı kategorilerini yönetin. Ekleme, düzenleme ve silme işlemleri.'
       infoContent={postCategoriesInfoContent}
       pageHeaderAction={

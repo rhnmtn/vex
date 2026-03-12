@@ -14,9 +14,9 @@ export function CellAction({ data }: CellActionProps) {
       data={data}
       editHref={`/dashboard/posts/${data.id}`}
       deleteAction={deletePost}
-      deleteTitle='Yazıyı sil'
-      deleteDescription='Bu yazı silinecektir. Bu işlem geri alınamaz.'
-      successMessage='Yazı silindi.'
+      deleteTitle='Blogu sil'
+      deleteDescription='Bu blog silinecektir. Bu işlem geri alınamaz.'
+      successMessage='Blog silindi.'
     />
   );
 }

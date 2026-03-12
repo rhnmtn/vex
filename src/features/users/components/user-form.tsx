@@ -5,7 +5,13 @@ import { FormMediaPicker } from '@/components/forms/form-media-picker';
 import { FormSelect } from '@/components/forms/form-select';
 import { FormSwitch } from '@/components/forms/form-switch';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
+} from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
 import type { UserWithAvatar } from '@/features/users/actions/get-user-by-id';
 import { createUser } from '@/features/users/actions/create-user';
@@ -31,12 +37,20 @@ const ROLE_OPTIONS = [
 
 export type UserFormData = UserWithAvatar | null;
 
+const USER_FORM_INFO =
+  'E-posta ve şifre zorunludur. Rol ataması yapabilirsiniz. Profil görseli opsiyoneldir.';
+
 interface UserFormProps {
   initialData: UserFormData;
   pageTitle: string;
+  pageDescription?: string;
 }
 
-export default function UserForm({ initialData, pageTitle }: UserFormProps) {
+export default function UserForm({
+  initialData,
+  pageTitle,
+  pageDescription = USER_FORM_INFO
+}: UserFormProps) {
   const router = useRouter();
   const isEdit = !!initialData?.id;
 
@@ -151,6 +165,9 @@ export default function UserForm({ initialData, pageTitle }: UserFormProps) {
         <CardTitle className='text-left text-2xl font-bold'>
           {pageTitle}
         </CardTitle>
+        <CardDescription className='text-left'>
+          {pageDescription}
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <Form

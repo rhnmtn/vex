@@ -110,7 +110,9 @@ function SidebarProvider({
 
   // We add a state so that we can do data-state="expanded" or "collapsed".
   // This makes it easier to style the sidebar with Tailwind classes.
-  const state = open ? 'expanded' : 'collapsed';
+  // On mobile, when Sheet is open, always use expanded so OrgSwitcher/SidebarUser text is visible.
+  const state =
+    isMobile && openMobile ? 'expanded' : open ? 'expanded' : 'collapsed';
 
   const contextValue = React.useMemo<SidebarContextProps>(
     () => ({
@@ -198,7 +200,9 @@ function Sidebar({
             <SheetTitle>Sidebar</SheetTitle>
             <SheetDescription>Displays the mobile sidebar.</SheetDescription>
           </SheetHeader>
-          <div className='flex h-full w-full flex-col'>{children}</div>
+          <div className='flex h-full w-full flex-col overflow-auto [&>[data-sidebar=footer]]:shrink-0 [&>[data-sidebar=header]]:shrink-0'>
+            {children}
+          </div>
         </SheetContent>
       </Sheet>
     );

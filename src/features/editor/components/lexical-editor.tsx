@@ -40,6 +40,8 @@ export interface LexicalEditorProps {
   showToolbar?: boolean;
   /** Otomatik odaklansın mı */
   autoFocus?: boolean;
+  /** Salt okunur mod (blog görüntüleme için) */
+  editable?: boolean;
 }
 
 const initialConfig = {
@@ -63,7 +65,8 @@ export function LexicalEditor({
   placeholder = 'İçerik yazın...',
   className,
   showToolbar = true,
-  autoFocus = false
+  autoFocus = false,
+  editable = true
 }: LexicalEditorProps) {
   const initialEditorState =
     initialContent && initialContent !== 'null' && initialContent !== ''
@@ -74,12 +77,13 @@ export function LexicalEditor({
     <LexicalComposer
       initialConfig={{
         ...initialConfig,
+        editable,
         ...(initialEditorState && { editorState: initialEditorState })
       }}
     >
       <div
         className={cn(
-          'rounded-lg border border-border bg-background',
+          'border-border bg-background rounded-lg border',
           className
         )}
       >
@@ -88,10 +92,13 @@ export function LexicalEditor({
           <RichTextPlugin
             contentEditable={
               <ContentEditable
-                className='min-h-[200px] overflow-auto px-4 py-3 outline-none'
+                className={cn(
+                  'overflow-auto px-4 py-3 outline-none',
+                  editable ? 'min-h-[200px]' : 'min-h-0'
+                )}
                 aria-placeholder={placeholder}
                 placeholder={
-                  <div className='pointer-events-none absolute left-4 top-3 text-muted-foreground'>
+                  <div className='text-muted-foreground pointer-events-none absolute top-3 left-4'>
                     {placeholder}
                   </div>
                 }

@@ -8,12 +8,7 @@ type PostViewPageProps = {
 
 export default async function PostViewPage({ postId }: PostViewPageProps) {
   if (postId === 'new') {
-    return (
-      <PostForm
-        initialData={null}
-        pageTitle='Yeni Yazı'
-      />
-    );
+    return <PostForm initialData={null} pageTitle='Yeni Blog' />;
   }
 
   const id = parseInt(postId, 10);
@@ -42,7 +37,7 @@ export default async function PostViewPage({ postId }: PostViewPageProps) {
         featuredImageId: post.featuredImageId,
         featuredImagePath: post.featuredImagePath ?? undefined
       }}
-      pageTitle='Yazı Düzenle'
+      pageTitle='Blog Düzenle'
     />
   );
 }

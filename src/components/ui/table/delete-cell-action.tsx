@@ -75,7 +75,7 @@ export function DeleteCellAction<T extends { id: string | number }>({
               <IconEdit className='mr-2 h-4 w-4' /> {editLabel}
             </Link>
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setOpen(true)}>
+          <DropdownMenuItem variant='destructive' onClick={() => setOpen(true)}>
             <IconTrash className='mr-2 h-4 w-4' /> Sil
           </DropdownMenuItem>
         </DropdownMenuContent>

@@ -17,7 +17,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const u = getSessionUser(session);
   const companyName = (u as SessionUserWithCompany)?.companyName ?? 'Vex';
   return {
-    title: 'Dashboard',
+    title: `Dashboard - ${companyName}`,
     description: `${companyName} — Premium tatil kiralama platformu`,
     robots: {
       index: false,
@@ -42,18 +42,20 @@ export default async function DashboardLayout({
   return (
     <KBar>
       <div className='h-svh overflow-hidden'>
-        <SidebarProvider defaultOpen={defaultOpen} className='h-full'>
-          <InfobarProvider defaultOpen={false}>
-            <AppSidebar />
-            <SidebarInset>
-              <Header />
-              {/* page main content */}
-              {children}
-              {/* page main content ends */}
-            </SidebarInset>
-            <InfoSidebar side='right' />
-          </InfobarProvider>
-        </SidebarProvider>
+        <div className='flex h-[125%] min-h-[125vh] w-[125%] min-w-[125vw] origin-top-left scale-[0.8] md:h-full md:min-h-0 md:w-full md:min-w-0 md:scale-100'>
+          <SidebarProvider defaultOpen={defaultOpen} className='h-full w-full'>
+            <InfobarProvider defaultOpen={false}>
+              <AppSidebar />
+              <SidebarInset>
+                <Header />
+                {/* page main content */}
+                {children}
+                {/* page main content ends */}
+              </SidebarInset>
+              <InfoSidebar side='right' />
+            </InfobarProvider>
+          </SidebarProvider>
+        </div>
       </div>
     </KBar>
   );

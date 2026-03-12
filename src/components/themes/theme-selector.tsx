@@ -20,20 +20,17 @@ export function ThemeSelector() {
   const { activeTheme, setActiveTheme } = useThemeConfig();
 
   return (
-    <div className='flex items-center gap-2'>
+    <div className='flex shrink-0 items-center gap-1 sm:gap-2'>
       <Label htmlFor='theme-selector' className='sr-only'>
-        Theme
+        Tema
       </Label>
       <Select value={activeTheme} onValueChange={setActiveTheme}>
         <SelectTrigger
           id='theme-selector'
-          className='justify-start *:data-[slot=select-value]:w-24'
+          className='h-8 w-8 min-w-8 shrink-0 items-center justify-center rounded-md p-0 *:data-[slot=select-value]:hidden sm:h-9 sm:min-w-28 sm:justify-between sm:px-3 sm:py-2 sm:*:data-[slot=select-value]:flex sm:*:data-[slot=select-value]:w-20 [&>svg:last-child]:hidden sm:[&>svg:last-child]:block'
         >
-          <span className='text-muted-foreground hidden sm:block'>
-            <Icons.palette />
-          </span>
-          <span className='text-muted-foreground block sm:hidden'>Theme</span>
-          <SelectValue placeholder='Select a theme' />
+          <Icons.palette className='text-muted-foreground size-4 shrink-0' />
+          <SelectValue placeholder='Tema seçin' />
         </SelectTrigger>
         <SelectContent align='end'>
           {THEMES.length > 0 && (

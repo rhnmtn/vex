@@ -4,7 +4,13 @@ import { FormInput } from '@/components/forms/form-input';
 import { FormSwitch } from '@/components/forms/form-switch';
 import { FormTextarea } from '@/components/forms/form-textarea';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
+} from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
 import { createCustomer } from '@/features/customers/actions/create-customer';
 import { updateCustomer } from '@/features/customers/actions/update-customer';
@@ -31,14 +37,19 @@ export type CustomerFormData = {
   isActive: boolean;
 } | null;
 
+const CUSTOMER_FORM_INFO =
+  'Firma adı zorunludur. Diğer alanlar opsiyoneldir. Kaydet ile form gönderilir.';
+
 interface CustomerFormProps {
   initialData: CustomerFormData;
   pageTitle: string;
+  pageDescription?: string;
 }
 
 export default function CustomerForm({
   initialData,
-  pageTitle
+  pageTitle,
+  pageDescription = CUSTOMER_FORM_INFO
 }: CustomerFormProps) {
   const defaultValues: CustomerFormValues = {
     name: initialData?.name ?? '',
@@ -111,6 +122,9 @@ export default function CustomerForm({
         <CardTitle className='text-left text-2xl font-bold'>
           {pageTitle}
         </CardTitle>
+        <CardDescription className='text-left'>
+          {pageDescription}
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <Form

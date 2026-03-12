@@ -4,7 +4,7 @@ import PostViewPage from '@/features/posts/components/post-view-page';
 import { Suspense } from 'react';
 
 export const metadata = {
-  title: 'Dashboard: Yazı'
+  title: 'Dashboard: Blog'
 };
 
 type PageProps = { params: Promise<{ postId: string }> };
