@@ -13,7 +13,8 @@ export const searchParams = {
   category: parseAsString,
   role: parseAsString,
   filename: parseAsString,
-  mimeType: parseAsString
+  mimeType: parseAsString,
+  title: parseAsString
   // advanced filter
   // filters: getFiltersStateParser().withDefault([]),
   // joinOperator: parseAsStringEnum(['and', 'or']).withDefault('and')

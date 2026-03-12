@@ -33,6 +33,8 @@ export interface DatePickerConfig {
   maxDate?: Date;
   disabledDates?: Date[];
   placeholder?: string;
+  /** Saat alanı göster (date + time) */
+  showTime?: boolean;
 }
 
 // Slider specific types

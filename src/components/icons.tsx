@@ -75,6 +75,7 @@ export const Icons = {
   twitter: IconBrandTwitter,
   check: IconCheck,
   workspace: IconFolder,
+  folder: IconFolder,
   teams: IconUsers,
   pro: IconCrown,
   exclusive: IconStar,

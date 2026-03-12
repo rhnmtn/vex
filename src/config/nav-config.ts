@@ -14,14 +14,6 @@ export const navItems: NavItem[] = [
     items: []
   },
   {
-    title: 'Product',
-    url: '/dashboard/product',
-    icon: 'product',
-    shortcut: ['p', 'p'],
-    isActive: false,
-    items: []
-  },
-  {
     title: 'Kullanıcılar',
     url: '/dashboard/users',
     icon: 'teams',
@@ -38,16 +30,27 @@ export const navItems: NavItem[] = [
     items: []
   },
   {
-    title: 'Account',
+    title: 'Blog',
     url: '#',
-    icon: 'account',
-    isActive: true,
+    icon: 'post',
+    shortcut: ['b', 'b'],
+    isActive: false,
     items: [
       {
-        title: 'Login',
-        shortcut: ['l', 'l'],
-        url: '/auth/sign-in',
-        icon: 'login'
+        title: 'Blog Kategorileri',
+        url: '/dashboard/post-categories',
+        icon: 'folder',
+        shortcut: ['k', 'k'],
+        isActive: false,
+        items: []
+      },
+      {
+        title: 'Bloglar',
+        url: '/dashboard/posts',
+        icon: 'post',
+        shortcut: ['b', 'p'],
+        isActive: false,
+        items: []
       }
     ]
   }

@@ -1,3 +1,9 @@
+/* Placeholder metinleri daha silik - normal yazıdan ayırt edilebilir */
+[data-theme='supabase'] input::placeholder,
+[data-theme='supabase'] textarea::placeholder {
+  opacity: 0.5;
+}
+
 [data-theme='supabase'] {
   --background: oklch(0.9911 0 0);
   --foreground: oklch(0.2046 0 0);

@@ -22,6 +22,7 @@ interface FormInputProps<
   min?: string | number;
   max?: string | number;
   accept?: string;
+  onBlur?: () => void;
 }
 
 function FormInput<
@@ -40,7 +41,8 @@ function FormInput<
   max,
   accept,
   disabled,
-  className
+  className,
+  onBlur: onBlurProp
 }: FormInputProps<TFieldValues, TName>) {
   return (
     <FormField
@@ -64,6 +66,10 @@ function FormInput<
               accept={accept}
               disabled={disabled}
               {...field}
+              onBlur={(e) => {
+                field.onBlur();
+                onBlurProp?.();
+              }}
               value={
                 type === 'file'
                   ? undefined
