@@ -5,21 +5,26 @@ import Header from '@/components/layout/header';
 import { InfoSidebar } from '@/components/layout/info-sidebar';
 import { InfobarProvider } from '@/components/ui/infobar';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
-import { auth } from '@/lib/auth';
+import { auth, getSessionUser, type SessionUserWithCompany } from '@/lib/auth';
 import type { Metadata } from 'next';
 import { cookies, headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 
 export const viewport = formViewport;
 
-export const metadata: Metadata = {
-  title: 'Next Shadcn Dashboard Starter',
-  description: 'Basic dashboard with Next.js and Shadcn',
-  robots: {
-    index: false,
-    follow: false
-  }
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const session = await auth.api.getSession({ headers: await headers() });
+  const u = getSessionUser(session);
+  const companyName = (u as SessionUserWithCompany)?.companyName ?? 'Vex';
+  return {
+    title: 'Dashboard',
+    description: `${companyName} — Premium tatil kiralama platformu`,
+    robots: {
+      index: false,
+      follow: false
+    }
+  };
+}
 
 export default async function DashboardLayout({
   children

@@ -15,7 +15,7 @@ const STATUS_OPTIONS = [
 /** isActive kolonu için factory */
 export function createStatusColumn<T extends { isActive: boolean }>(
   title = 'Durum'
-): ColumnDef<T, boolean> {
+): ColumnDef<T> {
   return {
     id: 'isActive',
     accessorKey: 'isActive',

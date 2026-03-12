@@ -15,17 +15,17 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
-export interface DeleteCellActionProps<T extends { id: string }> {
+export interface DeleteCellActionProps<T extends { id: string | number }> {
   data: T;
   editHref: string;
   editLabel?: string;
-  deleteAction: (id: string) => Promise<{ success: boolean; error?: string }>;
+  deleteAction: (id: T['id']) => Promise<{ success: boolean; error?: string }>;
   deleteTitle: string;
   deleteDescription: string;
   successMessage?: string;
 }
 
-export function DeleteCellAction<T extends { id: string }>({
+export function DeleteCellAction<T extends { id: string | number }>({
   data,
   editHref,
   editLabel = 'Düzenle',
