@@ -1,8 +1,8 @@
-import type { PublicWebCompany } from '@/lib/public-web-company';
+import type { WebCompany } from '@/lib/web-company';
 import Link from 'next/link';
 
 type PublicFooterProps = {
-  company?: PublicWebCompany | null;
+  company?: WebCompany | null;
 };
 
 export function PublicFooter({ company = null }: PublicFooterProps) {

@@ -17,9 +17,9 @@ import {
   useSidebar
 } from '@/components/ui/sidebar';
 import {
+  IconKey,
   IconLayoutDashboard,
   IconLogout,
-  IconSettings,
   IconUser
 } from '@tabler/icons-react';
 import Link from 'next/link';
@@ -74,8 +74,7 @@ export function SidebarUser() {
     .toUpperCase()
     .slice(0, 2);
 
-  const role =
-    (session.user as { role?: string }).role ?? 'USER';
+  const role = (session.user as { role?: string }).role ?? 'USER';
   const roleLabel = ROLE_LABELS[role] ?? role;
 
   return (
@@ -89,7 +88,7 @@ export function SidebarUser() {
               className='data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground'
             >
               <Avatar className='size-8 shrink-0'>
-                <AvatarImage src={session.user.image ?? undefined} alt="" />
+                <AvatarImage src={session.user.image ?? undefined} alt='' />
                 <AvatarFallback className='bg-primary/10 text-primary text-xs font-medium'>
                   {initials}
                 </AvatarFallback>
@@ -118,7 +117,7 @@ export function SidebarUser() {
           >
             <div className='flex items-start gap-3 px-2 py-2'>
               <Avatar className='size-10 shrink-0'>
-                <AvatarImage src={session.user.image ?? undefined} alt="" />
+                <AvatarImage src={session.user.image ?? undefined} alt='' />
                 <AvatarFallback className='bg-primary/10 text-primary text-sm font-medium'>
                   {initials}
                 </AvatarFallback>
@@ -153,9 +152,9 @@ export function SidebarUser() {
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
-              <Link href='/dashboard/settings'>
-                <IconSettings className='mr-2 h-4 w-4' />
-                Ayarlar
+              <Link href='/dashboard/profile/password'>
+                <IconKey className='mr-2 h-4 w-4' />
+                Şifre
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
@@ -166,7 +165,7 @@ export function SidebarUser() {
                 router.push('/');
                 router.refresh();
               }}
-              className='cursor-pointer text-destructive focus:text-destructive'
+              className='text-destructive focus:text-destructive cursor-pointer'
             >
               <IconLogout className='mr-2 h-4 w-4' />
               Çıkış Yap

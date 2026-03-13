@@ -2,7 +2,7 @@ import { db } from '@/db';
 import { companies } from '@/db/drizzle-schema';
 import { and, eq, sql } from 'drizzle-orm';
 
-export type PublicWebCompany = {
+export type WebCompany = {
   id: number;
   name: string;
   shortName: string;
@@ -14,7 +14,7 @@ export type PublicWebCompany = {
   phone: string | null;
 };
 
-function getPublicWebCompanyIdFromEnv(): number | null {
+function getWebCompanyIdFromEnv(): number | null {
   const envId = process.env.PUBLIC_WEB_COMPANY_ID;
   if (!envId?.trim()) return null;
   const id = parseInt(envId.trim(), 10);
@@ -22,11 +22,20 @@ function getPublicWebCompanyIdFromEnv(): number | null {
 }
 
 /**
+ * PUBLIC_WEB_COMPANY_ID env ile belirlenen veya ilk şirketin ID'sini döner.
+ * (web) route grubunda DB sorguları için companyId gerektiğinde kullanın.
+ */
+export async function getWebCompanyId(): Promise<number | null> {
+  const company = await getWebCompany();
+  return company?.id ?? null;
+}
+
+/**
  * PUBLIC_WEB_COMPANY_ID env ile belirlenen veya ilk şirketin bilgilerini döner.
  * (web) route grubundaki tüm public veriler bu şirkete göre filtrelenir.
  */
-export async function getPublicWebCompany(): Promise<PublicWebCompany | null> {
-  const envCompanyId = getPublicWebCompanyIdFromEnv();
+export async function getWebCompany(): Promise<WebCompany | null> {
+  const envCompanyId = getWebCompanyIdFromEnv();
 
   const [row] = envCompanyId
     ? await db

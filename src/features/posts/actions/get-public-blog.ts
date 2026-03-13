@@ -7,7 +7,7 @@ import {
   postCategoryAssignments,
   posts
 } from '@/db/drizzle-schema';
-import { getPublicWebCompany } from '@/lib/public-web-company';
+import { getWebCompanyId } from '@/lib/web-company';
 import { and, asc, desc, eq, inArray, lte, sql } from 'drizzle-orm';
 
 export type PublicPost = {
@@ -32,13 +32,11 @@ export async function getPublicBlogData(): Promise<{
   categories: PublicCategoryWithPosts[];
   totalPosts: number;
 }> {
-  const company = await getPublicWebCompany();
+  const companyId = await getWebCompanyId();
 
-  if (!company) {
+  if (!companyId) {
     return { categories: [], totalPosts: 0 };
   }
-
-  const companyId = company.id;
   const now = new Date();
 
   const activeCategories = await db
@@ -145,9 +143,9 @@ export async function getPublicBlogData(): Promise<{
 
 /** Slug ile tek bir yayınlanmış blog yazısı döner. Auth gerekmez. */
 export async function getPublicPostBySlug(slug: string) {
-  const company = await getPublicWebCompany();
+  const companyId = await getWebCompanyId();
 
-  if (!company) return null;
+  if (!companyId) return null;
 
   const now = new Date();
   const [row] = await db
@@ -164,7 +162,7 @@ export async function getPublicPostBySlug(slug: string) {
     .leftJoin(media, eq(posts.featuredImageId, media.id))
     .where(
       and(
-        eq(posts.companyId, company.id),
+        eq(posts.companyId, companyId),
         eq(posts.slug, slug),
         eq(posts.isActive, true),
         lte(posts.publishedAt, now),

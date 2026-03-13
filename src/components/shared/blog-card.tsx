@@ -26,14 +26,14 @@ export function BlogCard({ post, compact = false }: BlogCardProps) {
     <Link
       href={`/blog/${post.slug}`}
       className={cn(
-        'group block transition-transform duration-300 ease-out outline-none',
+        'group block h-full transition-transform duration-300 ease-out outline-none',
         'focus-visible:ring-ring focus-visible:ring-offset-background rounded-xl focus-visible:ring-2 focus-visible:ring-offset-2'
       )}
     >
       <Card
         className={cn(
-          'border-border/80 bg-card overflow-hidden p-0 transition-all duration-300 ease-out',
-          'hover:border-border hover:shadow-lg hover:shadow-black/5 dark:hover:shadow-black/20',
+          'border-border/80 bg-card flex h-full min-h-0 flex-col overflow-hidden p-0 shadow-sm transition-all duration-300 ease-out',
+          'hover:border-border hover:shadow-md hover:shadow-black/5 dark:hover:shadow-black/15',
           'hover:-translate-y-0.5'
         )}
       >
@@ -66,17 +66,22 @@ export function BlogCard({ post, compact = false }: BlogCardProps) {
 
         {/* Content */}
         <CardContent
-          className={cn('flex flex-col', compact ? 'gap-2 p-4' : 'gap-3 p-5')}
+          className={cn(
+            'flex min-h-0 flex-1 flex-col',
+            compact ? 'gap-1.5 p-3' : 'gap-2 p-4'
+          )}
         >
-          <h3 className='text-foreground group-hover:text-primary line-clamp-2 leading-tight font-semibold transition-colors'>
+          <h3 className='text-foreground group-hover:text-primary line-clamp-2 min-h-8 leading-tight font-semibold transition-colors'>
             {post.title}
           </h3>
-          {post.excerpt && (
-            <p className='text-muted-foreground line-clamp-2 text-sm leading-relaxed'>
+          {post.excerpt ? (
+            <p className='text-muted-foreground line-clamp-2 min-h-8 text-sm leading-relaxed'>
               {post.excerpt}
             </p>
+          ) : (
+            <div className='min-h-8' aria-hidden />
           )}
-          <div className='mt-auto flex items-center justify-between gap-3 pt-1'>
+          <div className='mt-auto flex items-center justify-between gap-2 pt-0.5'>
             {post.publishedAt ? (
               <time
                 dateTime={post.publishedAt.toISOString()}

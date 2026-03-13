@@ -2,12 +2,12 @@ import { BlogCard, Hero } from '@/components/shared';
 import { getPublicBlogData } from '@/features/posts/actions/get-public-blog';
 import { BlogEmptyState } from '@/features/posts/components/blog-empty-state';
 import type { PublicCategoryWithPosts } from '@/features/posts/actions/get-public-blog';
-import { getPublicWebCompany } from '@/lib/public-web-company';
+import { getWebCompany } from '@/lib/web-company';
 import type { Metadata } from 'next';
 import Image from 'next/image';
 
 export async function generateMetadata(): Promise<Metadata> {
-  const company = await getPublicWebCompany();
+  const company = await getWebCompany();
   const brandName = company?.shortName ?? company?.name ?? 'KiralaKal';
 
   return {
@@ -36,9 +36,11 @@ function CategorySection({ category }: { category: PublicCategoryWithPosts }) {
           {category.name}
         </h2>
       </div>
-      <div className='grid gap-6 sm:grid-cols-2 lg:grid-cols-3'>
+      <div className='grid grid-cols-1 items-stretch gap-6 sm:grid-cols-2 lg:grid-cols-3'>
         {category.posts.map((post) => (
-          <BlogCard key={post.id} post={post} />
+          <div key={post.id} className='h-full'>
+            <BlogCard post={post} />
+          </div>
         ))}
       </div>
     </section>

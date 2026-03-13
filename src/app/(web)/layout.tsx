@@ -1,13 +1,13 @@
 import { PublicFooter } from '@/components/layout/public-footer';
 import { PublicHeader } from '@/components/layout/public-header';
-import { getPublicWebCompany } from '@/lib/public-web-company';
+import { getWebCompany } from '@/lib/web-company';
 
 export default async function WebLayout({
   children
 }: {
   children: React.ReactNode;
 }) {
-  const company = await getPublicWebCompany();
+  const company = await getWebCompany();
 
   return (
     <div className='flex min-h-screen flex-col'>

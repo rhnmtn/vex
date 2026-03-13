@@ -91,7 +91,7 @@ export function OrgSwitcher() {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
-              <Link href='/dashboard/settings'>
+              <Link href='/dashboard/company'>
                 <IconSettings className='mr-2 h-4 w-4' />
                 Şirket Bilgileri
               </Link>
