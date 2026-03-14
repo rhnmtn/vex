@@ -3,7 +3,6 @@
 import { auth, type SessionUserWithCompany } from '@/lib/auth';
 import { db } from '@/db';
 import { customers } from '@/db/drizzle-schema';
-import { eq } from 'drizzle-orm';
 import { headers } from 'next/headers';
 import { revalidatePath } from 'next/cache';
 

@@ -1,7 +1,16 @@
 'use client';
-import { useEffect, useState } from 'react';
+
+import { useSyncExternalStore } from 'react';
 import { Button } from '@/components/ui/button';
 import { Modal } from '@/components/ui/modal';
+
+function useMounted(): boolean {
+  return useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
+}
 
 interface AlertModalProps {
   isOpen: boolean;
@@ -20,11 +29,7 @@ export const AlertModal: React.FC<AlertModalProps> = ({
   title = 'Are you sure?',
   description = 'This action cannot be undone.'
 }) => {
-  const [isMounted, setIsMounted] = useState(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
+  const isMounted = useMounted();
 
   if (!isMounted) {
     return null;

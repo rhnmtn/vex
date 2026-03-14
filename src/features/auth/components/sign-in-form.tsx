@@ -16,6 +16,7 @@ import { signInSchema, type SignInInput } from '@/features/auth/schemas/sign-in'
 import { getSafeRedirectUrl } from '@/features/auth/utils/safe-redirect';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import Link from 'next/link';
@@ -24,6 +25,7 @@ const CALLBACK_URL = '/dashboard';
 
 export function SignInForm() {
   const router = useRouter();
+  const [redirectUrl, setRedirectUrl] = useState<string | null>(null);
   const form = useForm<SignInInput>({
     resolver: zodResolver(signInSchema),
     defaultValues: {
@@ -46,11 +48,17 @@ export function SignInForm() {
 
     const safeUrl = getSafeRedirectUrl(data?.url);
     if (safeUrl) {
-      window.location.href = safeUrl;
+      setRedirectUrl(safeUrl);
     } else {
       router.push(CALLBACK_URL);
     }
   }
+
+  useEffect(() => {
+    if (redirectUrl) {
+      window.location.href = redirectUrl;
+    }
+  }, [redirectUrl]);
 
   const isPending = form.formState.isSubmitting;
 

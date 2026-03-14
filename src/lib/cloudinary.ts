@@ -42,7 +42,6 @@ export async function uploadToCloudinary(
   }
 
   const folder = options.folder ?? 'media';
-  const publicId = `${folder}/${options.filename.replace(/\.[^.]+$/, '')}-${Date.now()}`;
 
   return new Promise((resolve, reject) => {
     const uploadStream = cloudinary.uploader.upload_stream(

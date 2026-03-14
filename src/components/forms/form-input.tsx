@@ -66,7 +66,7 @@ function FormInput<
               accept={accept}
               disabled={disabled}
               {...field}
-              onBlur={(e) => {
+              onBlur={() => {
                 field.onBlur();
                 onBlurProp?.();
               }}

@@ -9,7 +9,7 @@ const eslintConfig = defineConfig([
   prettier,
   {
     rules: {
-      '@typescript-eslint/no-unused-vars': 'warn',
+      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
       'import/no-unresolved': 'off',
       'import/named': 'off',
       'no-console': 'warn',
