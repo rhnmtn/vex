@@ -54,7 +54,7 @@ export default function PageContainer({
 
   return scrollable ? (
     <div className='flex min-h-0 flex-1 flex-col overflow-y-auto'>
-      <div className='flex flex-1 flex-col p-4 md:px-6'>
+      <div className='flex flex-1 flex-col p-4 pb-[max(2rem,env(safe-area-inset-bottom))] md:px-6'>
         <div className='mb-4 flex shrink-0 items-start justify-between'>
           <Heading
             title={pageTitle ?? ''}
@@ -67,16 +67,18 @@ export default function PageContainer({
       </div>
     </div>
   ) : (
-    <div className='flex flex-1 flex-col p-4 md:px-6'>
-      <div className='mb-4 flex items-start justify-between'>
-        <Heading
-          title={pageTitle ?? ''}
-          description={pageDescription ?? ''}
-          infoContent={infoContent}
-        />
-        {pageHeaderAction && <div>{pageHeaderAction}</div>}
+    <div className='flex min-h-0 flex-1 flex-col overflow-y-auto'>
+      <div className='flex flex-1 flex-col p-4 pb-[max(2rem,env(safe-area-inset-bottom))] md:px-6'>
+        <div className='mb-4 flex items-start justify-between'>
+          <Heading
+            title={pageTitle ?? ''}
+            description={pageDescription ?? ''}
+            infoContent={infoContent}
+          />
+          {pageHeaderAction && <div>{pageHeaderAction}</div>}
+        </div>
+        {content}
       </div>
-      {content}
     </div>
   );
 }

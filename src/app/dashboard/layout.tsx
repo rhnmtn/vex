@@ -42,7 +42,7 @@ export default async function DashboardLayout({
   return (
     <KBar>
       <div className='h-svh overflow-hidden'>
-        <div className='flex h-[125%] min-h-[125vh] w-[125%] min-w-[125vw] origin-top-left scale-[0.8] md:h-full md:min-h-0 md:w-full md:min-w-0 md:scale-100'>
+        <div className='flex h-[133.33%] min-h-[133.33vh] w-[133.33%] min-w-[133.33vw] origin-top-left scale-[0.75] md:h-full md:min-h-0 md:w-full md:min-w-0 md:scale-100'>
           <SidebarProvider defaultOpen={defaultOpen} className='h-full w-full'>
             <InfobarProvider defaultOpen={false}>
               <AppSidebar />
