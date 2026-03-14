@@ -8,13 +8,14 @@ export async function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className='border-border/60 shrink-0 border-t px-4 py-3 md:px-6'>
-      <div className='flex flex-col items-center justify-between gap-2 text-center sm:flex-row sm:text-left'>
-        <p className='text-muted-foreground text-xs'>
+    <footer className='border-border/40 shrink-0 border-t px-4 py-2 md:px-6'>
+      <div className='flex flex-col items-center justify-between gap-1 text-center sm:flex-row sm:items-center sm:gap-2 sm:text-left'>
+        <p className='text-muted-foreground/90 text-[11px]'>
           © {currentYear} {companyName}
         </p>
-        <p className='text-muted-foreground/80 text-xs'>
-          Premium tatil kiralama platformu
+        <span className='text-muted-foreground/40 hidden sm:inline'>·</span>
+        <p className='text-muted-foreground/60 text-[11px]'>
+          VEX Tarafından Geliştirildi
         </p>
       </div>
     </footer>

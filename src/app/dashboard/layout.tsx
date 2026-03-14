@@ -49,7 +49,9 @@ export default async function DashboardLayout({
               <AppSidebar />
               <SidebarInset>
                 <Header />
+
                 {children}
+
                 <Footer />
               </SidebarInset>
               <InfoSidebar side='right' />
