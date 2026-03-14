@@ -14,7 +14,6 @@ import {
 } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Form } from '@/components/ui/form';
-import { MenuTab } from '@/features/company/components/menu-tab';
 import { updateCompany } from '@/features/company/actions/update-company';
 import {
   companyFormSchema,
@@ -50,28 +49,14 @@ export type CompanyFormData = {
   heroSubtitle: string | null;
 } | null;
 
-type MenuItem = {
-  id: number;
-  label: string;
-  href: string;
-  sortOrder: number;
-  isActive: boolean | null;
-};
-
 const COMPANY_FORM_INFO =
   'Şirket bilgilerinizi görüntüleyin ve düzenleyin. Değişiklikleri kaydetmek için Kaydet butonuna tıklayın.';
 
 interface CompanyFormProps {
   initialData: CompanyFormData;
-  headerMenuItems?: MenuItem[];
-  footerMenuItems?: MenuItem[];
 }
 
-export default function CompanyForm({
-  initialData,
-  headerMenuItems = [],
-  footerMenuItems = []
-}: CompanyFormProps) {
+export default function CompanyForm({ initialData }: CompanyFormProps) {
   const defaultValues: CompanyFormValues = {
     name: initialData?.name ?? '',
     shortName: initialData?.shortName ?? '',
@@ -179,11 +164,10 @@ export default function CompanyForm({
           className='space-y-8'
         >
           <Tabs defaultValue='genel' className='w-full'>
-            <TabsList className='grid w-full grid-cols-4'>
+            <TabsList className='grid w-full grid-cols-3'>
               <TabsTrigger value='genel'>Genel</TabsTrigger>
               <TabsTrigger value='logo'>Logo</TabsTrigger>
               <TabsTrigger value='hero'>Hero</TabsTrigger>
-              <TabsTrigger value='menu'>Menü</TabsTrigger>
             </TabsList>
             <TabsContent value='genel' className='space-y-6 pt-4'>
               <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
@@ -348,12 +332,6 @@ export default function CompanyForm({
                 label='Hero Alt Başlık'
                 placeholder='Hero üzerinde görünecek alt metin'
                 config={{ rows: 2, showCharCount: false }}
-              />
-            </TabsContent>
-            <TabsContent value='menu' className='pt-4'>
-              <MenuTab
-                headerItems={headerMenuItems}
-                footerItems={footerMenuItems}
               />
             </TabsContent>
           </Tabs>

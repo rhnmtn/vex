@@ -1,19 +1,9 @@
-import {
-  getCompanyByUser
-} from '@/features/company/actions/get-company-by-user';
-import {
-  getFooterMenuItems,
-  getHeaderMenuItems
-} from '@/features/company/actions/menu-actions';
+import { getCompanyByUser } from '@/features/company/actions/get-company-by-user';
 import { notFound } from 'next/navigation';
 import CompanyForm from './company-form';
 
 export default async function CompanyViewPage() {
-  const [company, headerItems, footerItems] = await Promise.all([
-    getCompanyByUser(),
-    getHeaderMenuItems(),
-    getFooterMenuItems()
-  ]);
+  const company = await getCompanyByUser();
 
   if (!company) {
     notFound();
@@ -45,8 +35,6 @@ export default async function CompanyViewPage() {
         heroText: company.heroText,
         heroSubtitle: company.heroSubtitle
       }}
-      headerMenuItems={headerItems}
-      footerMenuItems={footerItems}
     />
   );
 }

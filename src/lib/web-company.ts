@@ -8,7 +8,18 @@ import {
 import { alias } from 'drizzle-orm/pg-core';
 import { and, asc, eq, sql } from 'drizzle-orm';
 
-export type WebMenuItem = { label: string; href: string };
+export type WebMenuItem = {
+  label: string;
+  href: string;
+  children?: WebMenuItem[];
+};
+
+/** Ağaç yapısını düz listeye çevirir (kök, alt, alt... sırasıyla). */
+export function flattenMenuItems(items: WebMenuItem[]): WebMenuItem[] {
+  return items.flatMap((item) =>
+    item.children?.length ? [item, ...flattenMenuItems(item.children)] : [item]
+  );
+}
 
 const logoLightMedia = alias(media, 'logo_light_media');
 const logoDarkMedia = alias(media, 'logo_dark_media');
@@ -75,8 +86,14 @@ export async function getWebCompany(): Promise<WebCompany | null> {
     ? await db
         .select(selectFields)
         .from(companies)
-        .leftJoin(logoLightMedia, eq(companies.logoLightMediaId, logoLightMedia.id))
-        .leftJoin(logoDarkMedia, eq(companies.logoDarkMediaId, logoDarkMedia.id))
+        .leftJoin(
+          logoLightMedia,
+          eq(companies.logoLightMediaId, logoLightMedia.id)
+        )
+        .leftJoin(
+          logoDarkMedia,
+          eq(companies.logoDarkMediaId, logoDarkMedia.id)
+        )
         .leftJoin(heroMedia, eq(companies.heroImageMediaId, heroMedia.id))
         .where(
           and(
@@ -88,8 +105,14 @@ export async function getWebCompany(): Promise<WebCompany | null> {
     : await db
         .select(selectFields)
         .from(companies)
-        .leftJoin(logoLightMedia, eq(companies.logoLightMediaId, logoLightMedia.id))
-        .leftJoin(logoDarkMedia, eq(companies.logoDarkMediaId, logoDarkMedia.id))
+        .leftJoin(
+          logoLightMedia,
+          eq(companies.logoLightMediaId, logoLightMedia.id)
+        )
+        .leftJoin(
+          logoDarkMedia,
+          eq(companies.logoDarkMediaId, logoDarkMedia.id)
+        )
         .leftJoin(heroMedia, eq(companies.heroImageMediaId, heroMedia.id))
         .where(sql`${companies.deletedAt} IS NULL`)
         .limit(1);
@@ -114,15 +137,18 @@ export async function getWebCompany(): Promise<WebCompany | null> {
     : null;
 }
 
-/** Web şirketinin header menü öğelerini döner. */
+/** Web şirketinin header menü öğelerini döner (ağaç yapısı, kökten alt menüye sıralı). */
 export async function getWebHeaderMenuItems(): Promise<WebMenuItem[]> {
   const companyId = await getWebCompanyId();
   if (!companyId) return [];
 
   const rows = await db
     .select({
+      id: companyHeaderMenuItems.id,
+      parentId: companyHeaderMenuItems.parentId,
       label: companyHeaderMenuItems.label,
-      href: companyHeaderMenuItems.href
+      href: companyHeaderMenuItems.href,
+      sortOrder: companyHeaderMenuItems.sortOrder
     })
     .from(companyHeaderMenuItems)
     .where(
@@ -132,20 +158,79 @@ export async function getWebHeaderMenuItems(): Promise<WebMenuItem[]> {
         sql`${companyHeaderMenuItems.deletedAt} IS NULL`
       )
     )
-    .orderBy(asc(companyHeaderMenuItems.sortOrder), asc(companyHeaderMenuItems.id));
+    .orderBy(
+      asc(companyHeaderMenuItems.sortOrder),
+      asc(companyHeaderMenuItems.id)
+    );
 
-  return rows;
+  return buildMenuTree(rows);
 }
 
-/** Web şirketinin footer menü öğelerini döner. */
+function buildMenuTree(
+  rows: {
+    id: number;
+    parentId: number | null;
+    label: string;
+    href: string;
+    sortOrder: number;
+  }[]
+): WebMenuItem[] {
+  const roots = rows
+    .filter((r) => !r.parentId)
+    .sort((a, b) => a.sortOrder - b.sortOrder);
+  const byParent = new Map<number, typeof rows>();
+  for (const r of rows) {
+    if (r.parentId) {
+      const arr = byParent.get(r.parentId) ?? [];
+      arr.push(r);
+      byParent.set(r.parentId, arr);
+    }
+  }
+  for (const arr of byParent.values())
+    arr.sort((a, b) => a.sortOrder - b.sortOrder);
+
+  function toNode(row: (typeof rows)[0]): WebMenuItem {
+    const children = (byParent.get(row.id) ?? []).map(toNode);
+    return {
+      label: row.label,
+      href: row.href,
+      ...(children.length > 0 ? { children } : {})
+    };
+  }
+  return roots.map(toNode);
+}
+
+function buildOrderedMenuItems<
+  T extends { id: number; parentId: number | null; sortOrder: number }
+>(items: T[]): T[] {
+  const roots = items
+    .filter((i) => !i.parentId)
+    .sort((a, b) => a.sortOrder - b.sortOrder);
+  const byParent = new Map<number, T[]>();
+  for (const i of items) {
+    if (i.parentId) {
+      const arr = byParent.get(i.parentId) ?? [];
+      arr.push(i);
+      byParent.set(i.parentId, arr);
+    }
+  }
+  for (const arr of byParent.values())
+    arr.sort((a, b) => a.sortOrder - b.sortOrder);
+  return roots.flatMap((r) => [r, ...(byParent.get(r.id) ?? [])]);
+}
+
+/** Web şirketinin footer menü öğelerini döner (kökten alt menüye sıralı). */
 export async function getWebFooterMenuItems(): Promise<WebMenuItem[]> {
   const companyId = await getWebCompanyId();
   if (!companyId) return [];
 
   const rows = await db
     .select({
+      id: companyFooterMenuItems.id,
+      parentId: companyFooterMenuItems.parentId,
       label: companyFooterMenuItems.label,
-      href: companyFooterMenuItems.href
+      href: companyFooterMenuItems.href,
+      sortOrder: companyFooterMenuItems.sortOrder
     })
     .from(companyFooterMenuItems)
     .where(
@@ -155,7 +240,10 @@ export async function getWebFooterMenuItems(): Promise<WebMenuItem[]> {
         sql`${companyFooterMenuItems.deletedAt} IS NULL`
       )
     )
-    .orderBy(asc(companyFooterMenuItems.sortOrder), asc(companyFooterMenuItems.id));
+    .orderBy(
+      asc(companyFooterMenuItems.sortOrder),
+      asc(companyFooterMenuItems.id)
+    );
 
-  return rows;
+  return buildMenuTree(rows);
 }

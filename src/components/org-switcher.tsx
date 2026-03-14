@@ -14,7 +14,7 @@ import {
   SidebarMenuItem,
   useSidebar
 } from '@/components/ui/sidebar';
-import { IconBuilding, IconSettings } from '@tabler/icons-react';
+import { IconBuilding, IconMenu2, IconSettings } from '@tabler/icons-react';
 import Link from 'next/link';
 import { SidebarMenuButton } from '@/components/ui/sidebar';
 
@@ -94,6 +94,12 @@ export function OrgSwitcher() {
               <Link href='/dashboard/company'>
                 <IconSettings className='mr-2 h-4 w-4' />
                 Şirket Bilgileri
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href='/dashboard/company/menu'>
+                <IconMenu2 className='mr-2 h-4 w-4' />
+                Menü Bilgileri
               </Link>
             </DropdownMenuItem>
           </DropdownMenuContent>

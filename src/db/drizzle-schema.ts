@@ -1,5 +1,6 @@
 import {
   boolean,
+  foreignKey,
   index,
   integer,
   pgEnum,
@@ -10,20 +11,20 @@ import {
   timestamp,
   uniqueIndex,
   varchar
- } from 'drizzle-orm/pg-core';
- import { relations, sql } from 'drizzle-orm';
- import type { InferInsertModel, InferSelectModel } from 'drizzle-orm';
- 
- // Enums
- export const userRoleEnum = pgEnum('user_role', [
+} from 'drizzle-orm/pg-core';
+import { relations, sql } from 'drizzle-orm';
+import type { InferInsertModel, InferSelectModel } from 'drizzle-orm';
+
+// Enums
+export const userRoleEnum = pgEnum('user_role', [
   'ADMIN',
   'MANAGER',
   'USER',
   'GUEST'
- ]);
+]);
 
- // Companies (user'dan önce tanımlanmalı - user.companyId FK için)
- export const companies = pgTable(
+// Companies (user'dan önce tanımlanmalı - user.companyId FK için)
+export const companies = pgTable(
   'companies',
   {
     id: serial('id').primaryKey(),
@@ -81,13 +82,13 @@ import {
       .on(table.id)
       .where(sql`${table.deletedAt} IS NULL`)
   })
- );
- 
- export type Company = InferSelectModel<typeof companies>;
- export type NewCompany = InferInsertModel<typeof companies>;
- 
- // Better Auth - Core Schema (role app tarafında genişletildi)
- export const user = pgTable(
+);
+
+export type Company = InferSelectModel<typeof companies>;
+export type NewCompany = InferInsertModel<typeof companies>;
+
+// Better Auth - Core Schema (role app tarafında genişletildi)
+export const user = pgTable(
   'user',
   {
     id: text('id').primaryKey(),
@@ -112,12 +113,12 @@ import {
   (table) => ({
     companyIdIdx: index('user_company_id_idx').on(table.companyId)
   })
- );
- 
- export type User = InferSelectModel<typeof user>;
- export type NewUser = InferInsertModel<typeof user>;
- 
- export const session = pgTable('session', {
+);
+
+export type User = InferSelectModel<typeof user>;
+export type NewUser = InferInsertModel<typeof user>;
+
+export const session = pgTable('session', {
   id: text('id').primaryKey(),
   userId: text('userId')
     .notNull()
@@ -128,9 +129,9 @@ import {
   userAgent: text('userAgent'),
   createdAt: timestamp('createdAt').notNull().defaultNow(),
   updatedAt: timestamp('updatedAt').notNull().defaultNow()
- });
- 
- export const account = pgTable('account', {
+});
+
+export const account = pgTable('account', {
   id: text('id').primaryKey(),
   userId: text('userId')
     .notNull()
@@ -146,19 +147,19 @@ import {
   password: text('password'),
   createdAt: timestamp('createdAt').notNull().defaultNow(),
   updatedAt: timestamp('updatedAt').notNull().defaultNow()
- });
- 
- export const verification = pgTable('verification', {
+});
+
+export const verification = pgTable('verification', {
   id: text('id').primaryKey(),
   identifier: text('identifier').notNull(),
   value: text('value').notNull(),
   expiresAt: timestamp('expiresAt').notNull(),
   createdAt: timestamp('createdAt').notNull().defaultNow(),
   updatedAt: timestamp('updatedAt').notNull().defaultNow()
- });
- 
- // Customers
- export const customers = pgTable(
+});
+
+// Customers
+export const customers = pgTable(
   'customers',
   {
     id: serial('id').primaryKey(),
@@ -203,19 +204,17 @@ import {
       table.updatedByAuthId
     ),
     companyIdIdx: index('customers_company_id_idx').on(table.companyId),
-    companyIdDeletedAtNullIdx: index(
-      'customers_company_id_deleted_at_null_idx'
-    )
+    companyIdDeletedAtNullIdx: index('customers_company_id_deleted_at_null_idx')
       .on(table.companyId)
       .where(sql`${table.deletedAt} IS NULL`)
   })
- );
- 
- export type Customer = InferSelectModel<typeof customers>;
- export type NewCustomer = InferInsertModel<typeof customers>;
- 
- // Media: Görsel/dosya metadata (şirket kapsamlı, Cloudinary)
- export const media = pgTable(
+);
+
+export type Customer = InferSelectModel<typeof customers>;
+export type NewCustomer = InferInsertModel<typeof customers>;
+
+// Media: Görsel/dosya metadata (şirket kapsamlı, Cloudinary)
+export const media = pgTable(
   'media',
   {
     id: serial('id').primaryKey(),
@@ -243,14 +242,14 @@ import {
       .on(table.publicId, table.companyId)
       .where(sql`${table.publicId} IS NOT NULL`)
   })
- );
- 
- export type Media = InferSelectModel<typeof media>;
- export type NewMedia = InferInsertModel<typeof media>;
- 
- // Blog: Kategoriler (şirket kapsamlı)
- // content: kategori sayfası zengin içeriği | meta: SEO alanları
- export const postCategories = pgTable(
+);
+
+export type Media = InferSelectModel<typeof media>;
+export type NewMedia = InferInsertModel<typeof media>;
+
+// Blog: Kategoriler (şirket kapsamlı)
+// content: kategori sayfası zengin içeriği | meta: SEO alanları
+export const postCategories = pgTable(
   'post_categories',
   {
     id: serial('id').primaryKey(),
@@ -284,14 +283,14 @@ import {
       .on(table.companyId)
       .where(sql`${table.deletedAt} IS NULL`)
   })
- );
- 
- export type PostCategory = InferSelectModel<typeof postCategories>;
- export type NewPostCategory = InferInsertModel<typeof postCategories>;
- 
- // Blog: Yazılar (şirket kapsamlı, kategoriler ayrı tabloda)
- // excerpt: liste özeti | content: ana içerik | meta: SEO alanları
- export const posts = pgTable(
+);
+
+export type PostCategory = InferSelectModel<typeof postCategories>;
+export type NewPostCategory = InferInsertModel<typeof postCategories>;
+
+// Blog: Yazılar (şirket kapsamlı, kategoriler ayrı tabloda)
+// excerpt: liste özeti | content: ana içerik | meta: SEO alanları
+export const posts = pgTable(
   'posts',
   {
     id: serial('id').primaryKey(),
@@ -330,19 +329,17 @@ import {
     createdByAuthIdIdx: index('posts_created_by_auth_id_idx').on(
       table.createdByAuthId
     ),
-    companyIdDeletedAtNullIdx: index(
-      'posts_company_id_deleted_at_null_idx'
-    )
+    companyIdDeletedAtNullIdx: index('posts_company_id_deleted_at_null_idx')
       .on(table.companyId)
       .where(sql`${table.deletedAt} IS NULL`)
   })
- );
- 
- export type Post = InferSelectModel<typeof posts>;
- export type NewPost = InferInsertModel<typeof posts>;
- 
- // Blog: Yazı-Kategori ilişkisi (many-to-many)
- export const postCategoryAssignments = pgTable(
+);
+
+export type Post = InferSelectModel<typeof posts>;
+export type NewPost = InferInsertModel<typeof posts>;
+
+// Blog: Yazı-Kategori ilişkisi (many-to-many)
+export const postCategoryAssignments = pgTable(
   'post_category_assignments',
   {
     postId: integer('post_id')
@@ -355,23 +352,24 @@ import {
   (table) => ({
     pk: primaryKey({ columns: [table.postId, table.categoryId] })
   })
- );
- 
- export type PostCategoryAssignment = InferSelectModel<
-  typeof postCategoryAssignments
- >;
- export type NewPostCategoryAssignment = InferInsertModel<
-  typeof postCategoryAssignments
- >;
+);
 
- // Header menü öğeleri
- export const companyHeaderMenuItems = pgTable(
+export type PostCategoryAssignment = InferSelectModel<
+  typeof postCategoryAssignments
+>;
+export type NewPostCategoryAssignment = InferInsertModel<
+  typeof postCategoryAssignments
+>;
+
+// Header menü öğeleri (parent_id ile hiyerarşi, sort_order ile sıralama)
+export const companyHeaderMenuItems = pgTable(
   'company_header_menu_items',
   {
     id: serial('id').primaryKey(),
     companyId: integer('company_id')
       .notNull()
       .references(() => companies.id, { onDelete: 'cascade' }),
+    parentId: integer('parent_id'),
     label: varchar('label', { length: 100 }).notNull(),
     href: varchar('href', { length: 500 }).notNull(),
     sortOrder: integer('sort_order').notNull().default(0),
@@ -381,32 +379,39 @@ import {
     deletedAt: timestamp('deleted_at', { mode: 'date' })
   },
   (table) => ({
-    companyIdIdx: index(
-      'company_header_menu_items_company_id_idx'
-    ).on(table.companyId),
-    deletedAtNullIdx: index(
-      'company_header_menu_items_deleted_at_null_idx'
-    )
+    companyIdIdx: index('company_header_menu_items_company_id_idx').on(
+      table.companyId
+    ),
+    parentIdIdx: index('company_header_menu_items_parent_id_idx').on(
+      table.parentId
+    ),
+    parentIdFk: foreignKey({
+      columns: [table.parentId],
+      foreignColumns: [table.id],
+      name: 'company_header_menu_items_parent_id_fk'
+    }).onDelete('cascade'),
+    deletedAtNullIdx: index('company_header_menu_items_deleted_at_null_idx')
       .on(table.id)
       .where(sql`${table.deletedAt} IS NULL`)
   })
- );
+);
 
- export type CompanyHeaderMenuItem = InferSelectModel<
+export type CompanyHeaderMenuItem = InferSelectModel<
   typeof companyHeaderMenuItems
- >;
- export type NewCompanyHeaderMenuItem = InferInsertModel<
+>;
+export type NewCompanyHeaderMenuItem = InferInsertModel<
   typeof companyHeaderMenuItems
- >;
+>;
 
- // Footer menü öğeleri
- export const companyFooterMenuItems = pgTable(
+// Footer menü öğeleri (parent_id ile hiyerarşi, sort_order ile sıralama)
+export const companyFooterMenuItems = pgTable(
   'company_footer_menu_items',
   {
     id: serial('id').primaryKey(),
     companyId: integer('company_id')
       .notNull()
       .references(() => companies.id, { onDelete: 'cascade' }),
+    parentId: integer('parent_id'),
     label: varchar('label', { length: 100 }).notNull(),
     href: varchar('href', { length: 500 }).notNull(),
     sortOrder: integer('sort_order').notNull().default(0),
@@ -416,26 +421,32 @@ import {
     deletedAt: timestamp('deleted_at', { mode: 'date' })
   },
   (table) => ({
-    companyIdIdx: index(
-      'company_footer_menu_items_company_id_idx'
-    ).on(table.companyId),
-    deletedAtNullIdx: index(
-      'company_footer_menu_items_deleted_at_null_idx'
-    )
+    companyIdIdx: index('company_footer_menu_items_company_id_idx').on(
+      table.companyId
+    ),
+    parentIdIdx: index('company_footer_menu_items_parent_id_idx').on(
+      table.parentId
+    ),
+    parentIdFk: foreignKey({
+      columns: [table.parentId],
+      foreignColumns: [table.id],
+      name: 'company_footer_menu_items_parent_id_fk'
+    }).onDelete('cascade'),
+    deletedAtNullIdx: index('company_footer_menu_items_deleted_at_null_idx')
       .on(table.id)
       .where(sql`${table.deletedAt} IS NULL`)
   })
- );
+);
 
- export type CompanyFooterMenuItem = InferSelectModel<
+export type CompanyFooterMenuItem = InferSelectModel<
   typeof companyFooterMenuItems
- >;
- export type NewCompanyFooterMenuItem = InferInsertModel<
+>;
+export type NewCompanyFooterMenuItem = InferInsertModel<
   typeof companyFooterMenuItems
- >;
- 
- // Relations
- export const companiesRelations = relations(companies, ({ one, many }) => ({
+>;
+
+// Relations
+export const companiesRelations = relations(companies, ({ one, many }) => ({
   users: many(user),
   customers: many(customers),
   media: many(media),
@@ -468,8 +479,8 @@ import {
     references: [user.id],
     relationName: 'companyUpdatedBy'
   })
- }));
- 
+}));
+
 export const userRelations = relations(user, ({ one, many }) => ({
   company: one(companies),
   avatarMedia: one(media, {
@@ -484,16 +495,16 @@ export const userRelations = relations(user, ({ one, many }) => ({
   postCategories: many(postCategories),
   posts: many(posts)
 }));
- 
- export const sessionRelations = relations(session, ({ one }) => ({
+
+export const sessionRelations = relations(session, ({ one }) => ({
   user: one(user)
- }));
- 
- export const accountRelations = relations(account, ({ one }) => ({
+}));
+
+export const accountRelations = relations(account, ({ one }) => ({
   user: one(user)
- }));
- 
- export const customersRelations = relations(customers, ({ one }) => ({
+}));
+
+export const customersRelations = relations(customers, ({ one }) => ({
   company: one(companies),
   createdBy: one(user, {
     fields: [customers.createdByAuthId],
@@ -505,14 +516,14 @@ export const userRelations = relations(user, ({ one, many }) => ({
     references: [user.id],
     relationName: 'customerUpdatedBy'
   })
- }));
- 
- export const mediaRelations = relations(media, ({ one }) => ({
+}));
+
+export const mediaRelations = relations(media, ({ one }) => ({
   company: one(companies),
   createdBy: one(user)
- }));
- 
- export const postCategoriesRelations = relations(
+}));
+
+export const postCategoriesRelations = relations(
   postCategories,
   ({ one, many }) => ({
     company: one(companies),
@@ -529,9 +540,9 @@ export const userRelations = relations(user, ({ one, many }) => ({
     }),
     postCategoryAssignments: many(postCategoryAssignments)
   })
- );
- 
- export const postsRelations = relations(posts, ({ one, many }) => ({
+);
+
+export const postsRelations = relations(posts, ({ one, many }) => ({
   company: one(companies),
   featuredImage: one(media),
   createdBy: one(user, {
@@ -545,28 +556,42 @@ export const userRelations = relations(user, ({ one, many }) => ({
     relationName: 'postUpdatedBy'
   }),
   postCategoryAssignments: many(postCategoryAssignments)
- }));
- 
- export const postCategoryAssignmentsRelations = relations(
+}));
+
+export const postCategoryAssignmentsRelations = relations(
   postCategoryAssignments,
   ({ one }) => ({
     post: one(posts),
     category: one(postCategories)
   })
- );
+);
 
- export const companyHeaderMenuItemsRelations = relations(
+export const companyHeaderMenuItemsRelations = relations(
   companyHeaderMenuItems,
-  ({ one }) => ({
-    company: one(companies)
+  ({ one, many }) => ({
+    company: one(companies),
+    parent: one(companyHeaderMenuItems, {
+      fields: [companyHeaderMenuItems.parentId],
+      references: [companyHeaderMenuItems.id],
+      relationName: 'headerMenuParent'
+    }),
+    children: many(companyHeaderMenuItems, {
+      relationName: 'headerMenuParent'
+    })
   })
- );
+);
 
- export const companyFooterMenuItemsRelations = relations(
+export const companyFooterMenuItemsRelations = relations(
   companyFooterMenuItems,
-  ({ one }) => ({
-    company: one(companies)
+  ({ one, many }) => ({
+    company: one(companies),
+    parent: one(companyFooterMenuItems, {
+      fields: [companyFooterMenuItems.parentId],
+      references: [companyFooterMenuItems.id],
+      relationName: 'footerMenuParent'
+    }),
+    children: many(companyFooterMenuItems, {
+      relationName: 'footerMenuParent'
+    })
   })
- );
- 
- 
+);

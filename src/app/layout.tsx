@@ -41,7 +41,7 @@ export default async function RootLayout({
   const themeToApply = activeThemeValue || DEFAULT_THEME;
 
   return (
-    <html lang='en' suppressHydrationWarning data-theme={themeToApply}>
+    <html lang='tr' suppressHydrationWarning data-theme={themeToApply}>
       <head>
         <script
           dangerouslySetInnerHTML={{

@@ -1,4 +1,6 @@
 import type { WebCompany, WebMenuItem } from '@/lib/web-company';
+import { flattenMenuItems } from '@/lib/web-company';
+import { DEFAULT_BRAND_NAME, DEFAULT_SITE_DESCRIPTION } from '@/constants/site';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -15,14 +17,12 @@ type PublicFooterProps = {
 };
 
 export function PublicFooter({ company = null, menuItems }: PublicFooterProps) {
-  const items = menuItems?.length ? menuItems : DEFAULT_FOOTER_MENU;
+  const menuTree = menuItems?.length ? menuItems : DEFAULT_FOOTER_MENU;
+  const items = flattenMenuItems(menuTree);
   const currentYear = new Date().getFullYear();
-  const brandName = company?.shortName ?? company?.name ?? 'KiralaKal';
-  const description =
-    company?.description ??
-    'Kısa süreli tatil kiralama. Premium konaklama seçenekleri.';
-  const logoPath =
-    company?.logoDark ?? company?.logo ?? company?.logoLight;
+  const brandName = company?.shortName ?? company?.name ?? DEFAULT_BRAND_NAME;
+  const description = company?.description ?? DEFAULT_SITE_DESCRIPTION;
+  const logoPath = company?.logoDark ?? company?.logo ?? company?.logoLight;
   const logoAlt = company?.logoAlt ?? brandName;
 
   return (
@@ -70,6 +70,7 @@ export function PublicFooter({ company = null, menuItems }: PublicFooterProps) {
                     target='_blank'
                     rel='noopener noreferrer'
                     className='text-muted-foreground hover:text-foreground text-sm transition-colors'
+                    aria-label={`${item.label} (yeni sekmede açılır)`}
                   >
                     {item.label}
                   </a>
@@ -96,6 +97,7 @@ export function PublicFooter({ company = null, menuItems }: PublicFooterProps) {
                 <a
                   href={`mailto:${company.email}`}
                   className='text-muted-foreground hover:text-foreground transition-colors'
+                  aria-label={`E-posta gönder: ${company.email}`}
                 >
                   {company.email}
                 </a>
@@ -104,6 +106,7 @@ export function PublicFooter({ company = null, menuItems }: PublicFooterProps) {
                 <a
                   href={`tel:${company.phone.replace(/\s/g, '')}`}
                   className='text-muted-foreground hover:text-foreground transition-colors'
+                  aria-label={`Ara: ${company.phone}`}
                 >
                   {company.phone}
                 </a>
@@ -114,6 +117,7 @@ export function PublicFooter({ company = null, menuItems }: PublicFooterProps) {
                   target='_blank'
                   rel='noopener noreferrer'
                   className='text-muted-foreground hover:text-foreground transition-colors'
+                  aria-label={`Web sitesi: ${company.website.replace(/^https?:\/\//, '')} (yeni sekmede açılır)`}
                 >
                   {company.website.replace(/^https?:\/\//, '')}
                 </a>
