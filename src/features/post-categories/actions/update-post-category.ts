@@ -6,7 +6,11 @@ import { postCategories } from '@/db/drizzle-schema';
 import { and, eq, sql } from 'drizzle-orm';
 import { headers } from 'next/headers';
 import { revalidatePath } from 'next/cache';
-import { uploadMedia, deleteMedia } from '@/features/media/actions/media';
+import {
+  deleteMedia,
+  deleteOrphanedMediaFromPostCategoryContent,
+  uploadMedia
+} from '@/features/media/actions/media';
 
 export type UpdatePostCategoryInput = {
   name?: string;
@@ -72,6 +76,18 @@ export async function updatePostCategory(
     };
   }
 
+  if (input.content !== undefined) {
+    const orphanResult = await deleteOrphanedMediaFromPostCategoryContent(
+      companyId,
+      postCategoryId,
+      existing.content,
+      input.content
+    );
+    if (!orphanResult.success) {
+      return { success: false, error: orphanResult.error };
+    }
+  }
+
   let newBannerImageId: number | null = existing.bannerImageId ?? null;
 
   if (input.bannerRemoved && existing.bannerImageId) {
@@ -105,8 +121,12 @@ export async function updatePostCategory(
     .set({
       ...(input.name != null && { name: input.name.trim() }),
       ...(input.slug != null && { slug: input.slug.trim().toLowerCase() }),
-      ...(input.content !== undefined && { content: input.content?.trim() || null }),
-      ...(input.metaTitle !== undefined && { metaTitle: input.metaTitle?.trim() || null }),
+      ...(input.content !== undefined && {
+        content: input.content?.trim() || null
+      }),
+      ...(input.metaTitle !== undefined && {
+        metaTitle: input.metaTitle?.trim() || null
+      }),
       ...(input.metaDescription !== undefined && {
         metaDescription: input.metaDescription?.trim() || null
       }),

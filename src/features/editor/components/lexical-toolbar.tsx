@@ -37,11 +37,11 @@ import {
   Strikethrough,
   Underline
 } from 'lucide-react';
+import { LexicalImageUploadButton } from './lexical-image-upload-button';
 import { cn } from '@/lib/utils';
 
-
 function Divider() {
-  return <div className='mx-1 h-6 w-px bg-border' />;
+  return <div className='bg-border mx-1 h-6 w-px' />;
 }
 
 export function LexicalToolbar() {
@@ -142,7 +142,7 @@ export function LexicalToolbar() {
   };
 
   return (
-    <div className='flex flex-wrap items-center gap-1 rounded-t-lg border border-b-0 border-border bg-muted/50 p-1'>
+    <div className='border-border bg-muted/50 flex flex-wrap items-center gap-1 rounded-t-lg border border-b-0 p-1'>
       <Button
         type='button'
         variant='ghost'
@@ -249,6 +249,10 @@ export function LexicalToolbar() {
       >
         <Quote className='size-4' />
       </Button>
+
+      <Divider />
+
+      <LexicalImageUploadButton />
     </div>
   );
 }

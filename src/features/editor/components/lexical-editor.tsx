@@ -17,6 +17,7 @@ import { ListNode, ListItemNode } from '@lexical/list';
 import { HeadingNode, QuoteNode } from '@lexical/rich-text';
 import { HorizontalRuleNode } from '@lexical/react/LexicalHorizontalRuleNode';
 import type { EditorState } from 'lexical';
+import { ImageNode, LexicalImagePlugin } from './lexical-image';
 import { lexicalTheme } from '../lib/lexical-theme';
 import { LexicalToolbar } from './lexical-toolbar';
 import { cn } from '@/lib/utils';
@@ -55,7 +56,8 @@ const initialConfig = {
     ListNode,
     ListItemNode,
     LinkNode,
-    HorizontalRuleNode
+    HorizontalRuleNode,
+    ImageNode
   ]
 };
 
@@ -117,6 +119,7 @@ export function LexicalEditor({
           <ClickableLinkPlugin />
           <ListPlugin />
           <MarkdownShortcutPlugin />
+          <LexicalImagePlugin />
         </div>
       </div>
     </LexicalComposer>

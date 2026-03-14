@@ -2,14 +2,15 @@
 
 import { auth, type SessionUserWithCompany } from '@/lib/auth';
 import { db } from '@/db';
-import {
-  postCategoryAssignments,
-  posts
-} from '@/db/drizzle-schema';
+import { postCategoryAssignments, posts } from '@/db/drizzle-schema';
 import { and, eq, sql } from 'drizzle-orm';
 import { headers } from 'next/headers';
 import { revalidatePath } from 'next/cache';
-import { uploadMedia, deleteMedia } from '@/features/media/actions/media';
+import {
+  deleteMedia,
+  deleteOrphanedMediaFromPostContent,
+  uploadMedia
+} from '@/features/media/actions/media';
 
 export type UpdatePostInput = {
   title?: string;
@@ -77,6 +78,18 @@ export async function updatePost(
       success: false,
       error: 'Slug en az 2 karakter olmalıdır'
     };
+  }
+
+  if (input.content !== undefined) {
+    const orphanResult = await deleteOrphanedMediaFromPostContent(
+      companyId,
+      postId,
+      existing.content,
+      input.content
+    );
+    if (!orphanResult.success) {
+      return { success: false, error: orphanResult.error };
+    }
   }
 
   let newFeaturedImageId: number | null = existing.featuredImageId ?? null;

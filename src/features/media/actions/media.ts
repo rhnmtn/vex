@@ -4,14 +4,16 @@ import { auth, getSessionUser } from '@/lib/auth';
 import { getMediaById } from '@/features/media/actions/get-media';
 import { db } from '@/db';
 import {
+  companies,
   media,
   postCategories,
   posts,
   user,
   type Media
 } from '@/db/drizzle-schema';
-import { eq } from 'drizzle-orm';
+import { and, eq, ne, or, sql } from 'drizzle-orm';
 import { headers } from 'next/headers';
+import { extractMediaIdsFromLexicalContent } from '@/features/editor/lib/lexical-content';
 import {
   uploadToCloudinary,
   deleteFromCloudinary,
@@ -109,6 +111,166 @@ export async function uploadMedia(
 }
 
 /**
+ * Medya başka yerde (post content, featured image, banner, logo, avatar vb.) kullanılıyor mu?
+ * excludePostId: Bu post'un content'ini kontrol dışı bırak (güncelleme sırasında)
+ * excludePostCategoryId: Bu kategori'nin content'ini kontrol dışı bırak (güncelleme sırasında)
+ */
+export async function isMediaUsedElsewhere(
+  mediaId: number,
+  companyId: number,
+  excludePostId?: number,
+  excludePostCategoryId?: number
+): Promise<boolean> {
+  const [inFeaturedImage] = await db
+    .select({ id: posts.id })
+    .from(posts)
+    .where(
+      and(eq(posts.companyId, companyId), eq(posts.featuredImageId, mediaId))
+    )
+    .limit(1);
+
+  if (inFeaturedImage) return true;
+
+  const [inBanner] = await db
+    .select({ id: postCategories.id })
+    .from(postCategories)
+    .where(
+      and(
+        eq(postCategories.companyId, companyId),
+        eq(postCategories.bannerImageId, mediaId)
+      )
+    )
+    .limit(1);
+
+  if (inBanner) return true;
+
+  const [logoOrHero] = await db
+    .select({ id: companies.id })
+    .from(companies)
+    .where(
+      or(
+        eq(companies.logoLightMediaId, mediaId),
+        eq(companies.logoDarkMediaId, mediaId),
+        eq(companies.heroImageMediaId, mediaId)
+      )
+    )
+    .limit(1);
+
+  if (logoOrHero) return true;
+
+  const [inAvatar] = await db
+    .select({ id: user.id })
+    .from(user)
+    .where(eq(user.avatarMediaId, mediaId))
+    .limit(1);
+
+  if (inAvatar) return true;
+
+  const postsWithContent = await db
+    .select({ id: posts.id, content: posts.content })
+    .from(posts)
+    .where(
+      and(
+        eq(posts.companyId, companyId),
+        sql`${posts.content} IS NOT NULL`,
+        sql`${posts.deletedAt} IS NULL`,
+        ...(excludePostId ? [ne(posts.id, excludePostId)] : [])
+      )
+    );
+
+  for (const row of postsWithContent) {
+    if (extractMediaIdsFromLexicalContent(row.content).includes(mediaId)) {
+      return true;
+    }
+  }
+
+  const categoriesWithContent = await db
+    .select({ id: postCategories.id, content: postCategories.content })
+    .from(postCategories)
+    .where(
+      and(
+        eq(postCategories.companyId, companyId),
+        sql`${postCategories.content} IS NOT NULL`,
+        sql`${postCategories.deletedAt} IS NULL`,
+        ...(excludePostCategoryId
+          ? [ne(postCategories.id, excludePostCategoryId)]
+          : [])
+      )
+    );
+
+  for (const row of categoriesWithContent) {
+    if (extractMediaIdsFromLexicalContent(row.content).includes(mediaId)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+/**
+ * Post content güncellendiğinde artık referans edilmeyen medyaları siler.
+ * Eski ve yeni content'ten mediaId'leri çıkarır, orphan olanları deleteMedia ile siler.
+ */
+export async function deleteOrphanedMediaFromPostContent(
+  companyId: number,
+  postId: number,
+  oldContent: string | null | undefined,
+  newContent: string | null | undefined
+): Promise<{ success: true } | { success: false; error: string }> {
+  const oldIds = extractMediaIdsFromLexicalContent(oldContent);
+  const newIds = new Set(extractMediaIdsFromLexicalContent(newContent));
+  const orphanedIds = oldIds.filter((id) => !newIds.has(id));
+
+  for (const mediaId of orphanedIds) {
+    const used = await isMediaUsedElsewhere(
+      mediaId,
+      companyId,
+      postId,
+      undefined
+    );
+    if (!used) {
+      const result = await deleteMedia(mediaId);
+      if (!result.success) {
+        return result;
+      }
+    }
+  }
+
+  return { success: true };
+}
+
+/**
+ * Post category content güncellendiğinde artık referans edilmeyen medyaları siler.
+ */
+export async function deleteOrphanedMediaFromPostCategoryContent(
+  companyId: number,
+  postCategoryId: number,
+  oldContent: string | null | undefined,
+  newContent: string | null | undefined
+): Promise<{ success: true } | { success: false; error: string }> {
+  const oldIds = extractMediaIdsFromLexicalContent(oldContent);
+  const newIds = new Set(extractMediaIdsFromLexicalContent(newContent));
+  const orphanedIds = oldIds.filter((id) => !newIds.has(id));
+
+  for (const mediaId of orphanedIds) {
+    const used = await isMediaUsedElsewhere(
+      mediaId,
+      companyId,
+      undefined,
+      postCategoryId
+    );
+    if (!used) {
+      const result = await deleteMedia(mediaId);
+      if (!result.success) {
+        return result;
+      }
+    }
+  }
+
+  return { success: true };
+}
+
+/**
  * Önce Cloudinary'den siler, sonra DB'den siler.
  * Entity referansları (bannerImageId, featuredImageId vb.) güncelleme çağıran tarafın sorumluluğundadır.
  */
@@ -141,6 +303,18 @@ export async function deleteMedia(
     }
 
     // 2. Entity referanslarını temizle (FK ihlali önleme)
+    await db
+      .update(companies)
+      .set({ logoLightMediaId: null })
+      .where(eq(companies.logoLightMediaId, id));
+    await db
+      .update(companies)
+      .set({ logoDarkMediaId: null })
+      .where(eq(companies.logoDarkMediaId, id));
+    await db
+      .update(companies)
+      .set({ heroImageMediaId: null })
+      .where(eq(companies.heroImageMediaId, id));
     await db
       .update(postCategories)
       .set({ bannerImageId: null })

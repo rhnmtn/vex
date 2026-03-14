@@ -226,10 +226,15 @@ function MenuItemsSection({ title, items, type }: MenuItemsSectionProps) {
   const router = useRouter();
   const [isMounted, setIsMounted] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [localItems, setLocalItems] = useState<MenuItem[]>(items);
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  useEffect(() => {
+    setLocalItems(items);
+  }, [items]);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [label, setLabel] = useState('');
   const [href, setHref] = useState('');
@@ -254,18 +259,21 @@ function MenuItemsSection({ title, items, type }: MenuItemsSectionProps) {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
 
-    const oldIndex = items.findIndex((i) => i.id === active.id);
-    const newIndex = items.findIndex((i) => i.id === over.id);
+    const oldIndex = localItems.findIndex((i) => i.id === active.id);
+    const newIndex = localItems.findIndex((i) => i.id === over.id);
     if (oldIndex === -1 || newIndex === -1) return;
 
-    const reordered = arrayMove(items, oldIndex, newIndex);
+    const reordered = arrayMove(localItems, oldIndex, newIndex);
     const orderedIds = reordered.map((i) => i.id);
+
+    setLocalItems(reordered);
 
     const result = await reorderAction(orderedIds);
     if (result.success) {
       toast.success('Sıralama güncellendi');
       router.refresh();
     } else {
+      setLocalItems(items);
       toast.error(result.error ?? 'Sıralama güncellenemedi');
     }
   };
@@ -287,52 +295,58 @@ function MenuItemsSection({ title, items, type }: MenuItemsSectionProps) {
   };
 
   const handleIndent = async (item: MenuItem) => {
-    const idx = items.findIndex((i) => i.id === item.id);
+    const idx = localItems.findIndex((i) => i.id === item.id);
     if (idx <= 0) return;
-    const itemAbove = items[idx - 1];
+    const itemAbove = localItems[idx - 1];
     const newParentId = itemAbove.parentId ?? itemAbove.id;
     if (newParentId === item.id) return;
-    const descendantIds = getDescendantIds(items, item.id);
+    const descendantIds = getDescendantIds(localItems, item.id);
     if (descendantIds.has(newParentId)) return;
 
-    const newOrder = [...items];
+    const newOrder = [...localItems];
     newOrder.splice(idx, 1);
     const insertAfter = newOrder.findIndex((i) => i.id === newParentId) + 1;
-    newOrder.splice(insertAfter, 0, item);
+    newOrder.splice(insertAfter, 0, { ...item, parentId: newParentId });
 
     const orderedIds = newOrder.map((i) => i.id);
     const parentUpdates: Record<number, number | null> = {
       [item.id]: newParentId
     };
 
+    setLocalItems(newOrder);
+
     const result = await reorderAction(orderedIds, parentUpdates);
     if (result.success) {
       toast.success('Alt menüye taşındı');
       router.refresh();
     } else {
+      setLocalItems(items);
       toast.error(result.error ?? 'Taşınamadı');
     }
   };
 
   const handleOutdent = async (item: MenuItem) => {
     if (!item.parentId) return;
-    const idx = items.findIndex((i) => i.id === item.id);
-    const newOrder = [...items];
+    const idx = localItems.findIndex((i) => i.id === item.id);
+    const newOrder = [...localItems];
     newOrder.splice(idx, 1);
     let insertAt = 0;
     for (let i = 0; i < idx; i++) {
-      if (!items[i].parentId) insertAt = i + 1;
+      if (!localItems[i].parentId) insertAt = i + 1;
     }
-    newOrder.splice(insertAt, 0, item);
+    newOrder.splice(insertAt, 0, { ...item, parentId: null });
 
     const orderedIds = newOrder.map((i) => i.id);
     const parentUpdates: Record<number, number | null> = { [item.id]: null };
+
+    setLocalItems(newOrder);
 
     const result = await reorderAction(orderedIds, parentUpdates);
     if (result.success) {
       toast.success('Üst menüye taşındı');
       router.refresh();
     } else {
+      setLocalItems(items);
       toast.error(result.error ?? 'Taşınamadı');
     }
   };
@@ -380,12 +394,12 @@ function MenuItemsSection({ title, items, type }: MenuItemsSectionProps) {
   };
 
   const validParents = (editingId: number | null): MenuItem[] => {
-    if (!editingId) return items;
+    if (!editingId) return localItems;
     const exclude = new Set([
       editingId,
-      ...Array.from(getDescendantIds(items, editingId))
+      ...Array.from(getDescendantIds(localItems, editingId))
     ]);
-    return items.filter((i) => !exclude.has(i.id));
+    return localItems.filter((i) => !exclude.has(i.id));
   };
 
   const handleDelete = async (id: number) => {
@@ -487,12 +501,12 @@ function MenuItemsSection({ title, items, type }: MenuItemsSectionProps) {
         </Dialog>
       </div>
       <ul className='border-border divide-border divide-y rounded-lg border'>
-        {items.length === 0 ? (
+        {localItems.length === 0 ? (
           <li className='text-muted-foreground px-4 py-6 text-center text-sm'>
             Henüz menü öğesi yok. Ekle butonuna tıklayarak ekleyin.
           </li>
         ) : !isMounted ? (
-          items.map((item) => (
+          localItems.map((item) => (
             <li
               key={item.id}
               className={cn(
@@ -516,12 +530,12 @@ function MenuItemsSection({ title, items, type }: MenuItemsSectionProps) {
             onDragEnd={handleDragEnd}
           >
             <SortableContext
-              items={items.map((i) => i.id)}
+              items={localItems.map((i) => i.id)}
               strategy={verticalListSortingStrategy}
             >
-              {items.map((item, idx) => {
-                const itemAbove = idx > 0 ? items[idx - 1] : null;
-                const descendantIds = getDescendantIds(items, item.id);
+              {localItems.map((item, idx) => {
+                const itemAbove = idx > 0 ? localItems[idx - 1] : null;
+                const descendantIds = getDescendantIds(localItems, item.id);
                 const newParentId = itemAbove
                   ? (itemAbove.parentId ?? itemAbove.id)
                   : null;
