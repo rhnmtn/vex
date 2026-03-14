@@ -18,7 +18,15 @@ export const companyFormSchema = z.object({
     .optional(),
   website: z.string().max(255).optional(),
   description: z.string().max(1000).optional(),
-  isActive: z.boolean()
+  isActive: z.boolean(),
+  logoLightMediaId: z.number().nullable(),
+  logoLightFile: z.union([z.instanceof(File), z.null()]).optional(),
+  logoDarkMediaId: z.number().nullable(),
+  logoDarkFile: z.union([z.instanceof(File), z.null()]).optional(),
+  heroImageMediaId: z.number().nullable(),
+  heroImageFile: z.union([z.instanceof(File), z.null()]).optional(),
+  heroText: z.string().max(255).optional(),
+  heroSubtitle: z.string().max(500).optional()
 });
 
 export type CompanyFormValues = z.infer<typeof companyFormSchema>;

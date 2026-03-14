@@ -78,9 +78,11 @@ export async function getPublicBlogData(): Promise<{
     )
     .orderBy(desc(posts.isSticky), desc(posts.publishedAt));
 
+  const latestPosts = publishedPosts.slice(0, 6);
+
   const postCategoryMap = new Map<number, number[]>();
-  if (publishedPosts.length > 0) {
-    const postIds = publishedPosts.map((p) => p.id);
+  if (latestPosts.length > 0) {
+    const postIds = latestPosts.map((p) => p.id);
     const assignments = await db
       .select({
         postId: postCategoryAssignments.postId,
@@ -109,35 +111,50 @@ export async function getPublicBlogData(): Promise<{
     ])
   );
 
+  const sortByPublishedAt = (a: PublicPost, b: PublicPost) => {
+    const aDate = a.publishedAt?.getTime() ?? 0;
+    const bDate = b.publishedAt?.getTime() ?? 0;
+    return bDate - aDate;
+  };
+
   const categories: PublicCategoryWithPosts[] = activeCategories.map((cat) => {
-    const catPosts = publishedPosts.filter((p) =>
-      (postCategoryMap.get(p.id) ?? []).includes(cat.id)
-    );
+    const catPosts = latestPosts
+      .filter((p) => (postCategoryMap.get(p.id) ?? []).includes(cat.id))
+      .map((p) => postMap.get(p.id)!)
+      .sort(sortByPublishedAt);
     return {
       id: cat.id,
       name: cat.name,
       slug: cat.slug,
       bannerImagePath: cat.bannerImagePath ?? null,
-      posts: catPosts.map((p) => postMap.get(p.id)!)
+      posts: catPosts
     };
   });
 
-  const uncategorized = publishedPosts.filter(
-    (p) => !(postCategoryMap.get(p.id) ?? []).length
-  );
+  const uncategorized = latestPosts
+    .filter((p) => !(postCategoryMap.get(p.id) ?? []).length)
+    .map((p) => postMap.get(p.id)!)
+    .sort(sortByPublishedAt);
   if (uncategorized.length > 0) {
     categories.push({
       id: -1,
       name: 'Genel',
       slug: 'genel',
       bannerImagePath: null,
-      posts: uncategorized.map((p) => postMap.get(p.id)!)
+      posts: uncategorized
     });
   }
 
+  const filtered = categories.filter((c) => c.posts.length > 0);
+  filtered.sort((a, b) => {
+    const aLatest = a.posts[0]?.publishedAt?.getTime() ?? 0;
+    const bLatest = b.posts[0]?.publishedAt?.getTime() ?? 0;
+    return bLatest - aLatest;
+  });
+
   return {
-    categories: categories.filter((c) => c.posts.length > 0),
-    totalPosts: publishedPosts.length
+    categories: filtered,
+    totalPosts: latestPosts.length
   };
 }
 

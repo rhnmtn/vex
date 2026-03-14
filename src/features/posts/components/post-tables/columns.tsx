@@ -50,7 +50,7 @@ export const columns: ColumnDef<PostRow>[] = [
     cell: ({ cell }) => {
       const date = cell.getValue<PostRow['publishedAt']>();
       return date ? (
-        <span>{format(date, 'd MMM yyyy', { locale: tr })}</span>
+        <span>{format(date, 'd MMM yyyy, HH:mm', { locale: tr })}</span>
       ) : (
         <span className='text-muted-foreground'>—</span>
       );

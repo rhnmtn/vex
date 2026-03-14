@@ -8,6 +8,27 @@
       "when": 1773229819074,
       "tag": "0000_salty_zarek",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1773497313480,
+      "tag": "0001_freezing_deathstrike",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1773600000000,
+      "tag": "0002_company_logo_hero",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1773700000000,
+      "tag": "0003_company_menu_tables",
+      "breakpoints": true
     }
   ]
 }

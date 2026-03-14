@@ -1,19 +1,27 @@
 import { PublicFooter } from '@/components/layout/public-footer';
 import { PublicHeader } from '@/components/layout/public-header';
-import { getWebCompany } from '@/lib/web-company';
+import {
+  getWebCompany,
+  getWebFooterMenuItems,
+  getWebHeaderMenuItems
+} from '@/lib/web-company';
 
 export default async function WebLayout({
   children
 }: {
   children: React.ReactNode;
 }) {
-  const company = await getWebCompany();
+  const [company, headerMenuItems, footerMenuItems] = await Promise.all([
+    getWebCompany(),
+    getWebHeaderMenuItems(),
+    getWebFooterMenuItems()
+  ]);
 
   return (
     <div className='flex min-h-screen flex-col'>
-      <PublicHeader company={company} />
+      <PublicHeader company={company} menuItems={headerMenuItems} />
       <main className='w-full flex-1'>{children}</main>
-      <PublicFooter company={company} />
+      <PublicFooter company={company} menuItems={footerMenuItems} />
     </div>
   );
 }

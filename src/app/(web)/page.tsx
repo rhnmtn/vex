@@ -48,14 +48,17 @@ function CategorySection({ category }: { category: PublicCategoryWithPosts }) {
 }
 
 export default async function HomePage() {
-  const { categories, totalPosts } = await getPublicBlogData();
+  const [blogData, company] = await Promise.all([
+    getPublicBlogData(),
+    getWebCompany()
+  ]);
+  const { categories, totalPosts } = blogData;
 
   return (
     <>
       {/* Hero: tam genişlik, normal içerikten daha geniş */}
       <Hero
-        title='Kısa Konaklama, Uzun Anılar'
-        subtitle='KiralaKal ile tatil kiralama deneyiminizi keşfedin. Güncel yazılar ve konaklama ipuçları.'
+        company={company}
         actions={[
           ...(totalPosts > 0
             ? [

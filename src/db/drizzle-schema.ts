@@ -21,7 +21,7 @@ import {
   'USER',
   'GUEST'
  ]);
- 
+
  // Companies (user'dan önce tanımlanmalı - user.companyId FK için)
  export const companies = pgTable(
   'companies',
@@ -46,6 +46,20 @@ import {
     website: varchar('website', { length: 255 }),
     logo: varchar('logo', { length: 255 }),
     logoAlt: varchar('logo_alt', { length: 255 }),
+    logoLightMediaId: integer('logo_light_media_id').references(
+      (): import('drizzle-orm/pg-core').AnyPgColumn => media.id,
+      { onDelete: 'set null' }
+    ),
+    logoDarkMediaId: integer('logo_dark_media_id').references(
+      (): import('drizzle-orm/pg-core').AnyPgColumn => media.id,
+      { onDelete: 'set null' }
+    ),
+    heroImageMediaId: integer('hero_image_media_id').references(
+      (): import('drizzle-orm/pg-core').AnyPgColumn => media.id,
+      { onDelete: 'set null' }
+    ),
+    heroText: varchar('hero_text', { length: 255 }),
+    heroSubtitle: varchar('hero_subtitle', { length: 500 }),
     description: varchar('description', { length: 1000 })
   },
   (table) => ({
@@ -349,14 +363,101 @@ import {
  export type NewPostCategoryAssignment = InferInsertModel<
   typeof postCategoryAssignments
  >;
+
+ // Header menü öğeleri
+ export const companyHeaderMenuItems = pgTable(
+  'company_header_menu_items',
+  {
+    id: serial('id').primaryKey(),
+    companyId: integer('company_id')
+      .notNull()
+      .references(() => companies.id, { onDelete: 'cascade' }),
+    label: varchar('label', { length: 100 }).notNull(),
+    href: varchar('href', { length: 500 }).notNull(),
+    sortOrder: integer('sort_order').notNull().default(0),
+    isActive: boolean('is_active').default(true),
+    createdAt: timestamp('created_at', { mode: 'date' }).defaultNow(),
+    updatedAt: timestamp('updated_at', { mode: 'date' }).defaultNow(),
+    deletedAt: timestamp('deleted_at', { mode: 'date' })
+  },
+  (table) => ({
+    companyIdIdx: index(
+      'company_header_menu_items_company_id_idx'
+    ).on(table.companyId),
+    deletedAtNullIdx: index(
+      'company_header_menu_items_deleted_at_null_idx'
+    )
+      .on(table.id)
+      .where(sql`${table.deletedAt} IS NULL`)
+  })
+ );
+
+ export type CompanyHeaderMenuItem = InferSelectModel<
+  typeof companyHeaderMenuItems
+ >;
+ export type NewCompanyHeaderMenuItem = InferInsertModel<
+  typeof companyHeaderMenuItems
+ >;
+
+ // Footer menü öğeleri
+ export const companyFooterMenuItems = pgTable(
+  'company_footer_menu_items',
+  {
+    id: serial('id').primaryKey(),
+    companyId: integer('company_id')
+      .notNull()
+      .references(() => companies.id, { onDelete: 'cascade' }),
+    label: varchar('label', { length: 100 }).notNull(),
+    href: varchar('href', { length: 500 }).notNull(),
+    sortOrder: integer('sort_order').notNull().default(0),
+    isActive: boolean('is_active').default(true),
+    createdAt: timestamp('created_at', { mode: 'date' }).defaultNow(),
+    updatedAt: timestamp('updated_at', { mode: 'date' }).defaultNow(),
+    deletedAt: timestamp('deleted_at', { mode: 'date' })
+  },
+  (table) => ({
+    companyIdIdx: index(
+      'company_footer_menu_items_company_id_idx'
+    ).on(table.companyId),
+    deletedAtNullIdx: index(
+      'company_footer_menu_items_deleted_at_null_idx'
+    )
+      .on(table.id)
+      .where(sql`${table.deletedAt} IS NULL`)
+  })
+ );
+
+ export type CompanyFooterMenuItem = InferSelectModel<
+  typeof companyFooterMenuItems
+ >;
+ export type NewCompanyFooterMenuItem = InferInsertModel<
+  typeof companyFooterMenuItems
+ >;
  
  // Relations
  export const companiesRelations = relations(companies, ({ one, many }) => ({
   users: many(user),
   customers: many(customers),
   media: many(media),
+  logoLightMedia: one(media, {
+    fields: [companies.logoLightMediaId],
+    references: [media.id],
+    relationName: 'companyLogoLight'
+  }),
+  logoDarkMedia: one(media, {
+    fields: [companies.logoDarkMediaId],
+    references: [media.id],
+    relationName: 'companyLogoDark'
+  }),
+  heroImageMedia: one(media, {
+    fields: [companies.heroImageMediaId],
+    references: [media.id],
+    relationName: 'companyHeroImage'
+  }),
   postCategories: many(postCategories),
   posts: many(posts),
+  headerMenuItems: many(companyHeaderMenuItems),
+  footerMenuItems: many(companyFooterMenuItems),
   createdBy: one(user, {
     fields: [companies.createdByAuthId],
     references: [user.id],
@@ -451,6 +552,20 @@ export const userRelations = relations(user, ({ one, many }) => ({
   ({ one }) => ({
     post: one(posts),
     category: one(postCategories)
+  })
+ );
+
+ export const companyHeaderMenuItemsRelations = relations(
+  companyHeaderMenuItems,
+  ({ one }) => ({
+    company: one(companies)
+  })
+ );
+
+ export const companyFooterMenuItemsRelations = relations(
+  companyFooterMenuItems,
+  ({ one }) => ({
+    company: one(companies)
   })
  );
  
