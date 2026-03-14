@@ -1,6 +1,7 @@
 import { formViewport } from '@/config/viewport';
 import KBar from '@/components/kbar';
 import AppSidebar from '@/components/layout/app-sidebar';
+import { Footer } from '@/components/layout/footer';
 import Header from '@/components/layout/header';
 import { InfoSidebar } from '@/components/layout/info-sidebar';
 import { InfobarProvider } from '@/components/ui/infobar';
@@ -49,6 +50,7 @@ export default async function DashboardLayout({
               <SidebarInset>
                 <Header />
                 {children}
+                <Footer />
               </SidebarInset>
               <InfoSidebar side='right' />
             </InfobarProvider>
