@@ -345,7 +345,8 @@ function MenuItemsSection({ title, items, type }: MenuItemsSectionProps) {
     }
     setIsSubmitting(true);
     try {
-      const parentIdVal = parentId ? parseInt(parentId, 10) : null;
+      const parentIdVal =
+        parentId && parentId !== '__root__' ? parseInt(parentId, 10) : null;
       if (editingId) {
         const result = await updateAction(editingId, {
           label: label.trim(),
@@ -443,12 +444,19 @@ function MenuItemsSection({ title, items, type }: MenuItemsSectionProps) {
                 </div>
                 <div className='grid gap-2'>
                   <Label htmlFor='parent'>Üst menü</Label>
-                  <Select value={parentId} onValueChange={setParentId}>
+                  <Select
+                    value={parentId || '__root__'}
+                    onValueChange={(v) =>
+                      setParentId(v === '__root__' ? '' : v)
+                    }
+                  >
                     <SelectTrigger id='parent' className='w-full'>
                       <SelectValue placeholder='— Kök (üst menü yok)' />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value=''>— Kök (üst menü yok)</SelectItem>
+                      <SelectItem value='__root__'>
+                        — Kök (üst menü yok)
+                      </SelectItem>
                       {validParents(editingId).map((i) => (
                         <SelectItem key={i.id} value={i.id.toString()}>
                           {i.parentId ? `  ${i.label}` : i.label}
