@@ -27,6 +27,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 import type { EditorState } from 'lexical';
 
 export type PostFormData = {
@@ -146,9 +147,10 @@ export default function PostForm({
         featuredImageRemoved: featuredRemoved
       });
       if (!result.success) {
-        form.setError('root', { message: result.error });
+        toast.error(result.error);
         return;
       }
+      toast.success('Blog güncellendi');
     } else {
       const result = await createPost({
         title: values.title,
@@ -166,9 +168,10 @@ export default function PostForm({
             : null
       });
       if (!result.success) {
-        form.setError('root', { message: result.error });
+        toast.error(result.error);
         return;
       }
+      toast.success('Blog oluşturuldu');
     }
 
     router.push('/dashboard/posts');
@@ -191,12 +194,6 @@ export default function PostForm({
           onSubmit={form.handleSubmit(onSubmit)}
           className='space-y-8'
         >
-          {form.formState.errors.root?.message && (
-            <p className='text-destructive text-sm'>
-              {form.formState.errors.root.message}
-            </p>
-          )}
-
           <FormInput
             control={form.control}
             name='title'

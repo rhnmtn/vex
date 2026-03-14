@@ -138,7 +138,7 @@ export default function CompanyForm({ initialData }: CompanyFormProps) {
     });
 
     if (!result.success) {
-      form.setError('root', { message: result.error });
+      toast.error(result.error);
       return;
     }
 

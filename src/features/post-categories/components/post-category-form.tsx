@@ -24,6 +24,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { useCallback } from 'react';
 import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 import type { EditorState } from 'lexical';
 
 export type PostCategoryFormData = {
@@ -117,9 +118,10 @@ export default function PostCategoryForm({
         bannerRemoved
       });
       if (!result.success) {
-        form.setError('root', { message: result.error });
+        toast.error(result.error);
         return;
       }
+      toast.success('Kategori güncellendi');
     } else {
       const result = await createPostCategory({
         name: values.name,
@@ -132,9 +134,10 @@ export default function PostCategoryForm({
           values.bannerImageFile instanceof File ? values.bannerImageFile : null
       });
       if (!result.success) {
-        form.setError('root', { message: result.error });
+        toast.error(result.error);
         return;
       }
+      toast.success('Kategori oluşturuldu');
     }
 
     router.push('/dashboard/post-categories');
@@ -157,12 +160,6 @@ export default function PostCategoryForm({
           onSubmit={form.handleSubmit(onSubmit)}
           className='space-y-8'
         >
-          {form.formState.errors.root?.message && (
-            <p className='text-destructive text-sm'>
-              {form.formState.errors.root.message}
-            </p>
-          )}
-
           <FormInput
             control={form.control}
             name='name'

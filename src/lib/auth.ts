@@ -13,10 +13,8 @@ const baseURL =
     ? `https://${process.env.VERCEL_URL}`
     : 'http://localhost:3000');
 
-/** Tüm rollerde kullanıcının yetkili olduğu şirket id listesi. companyId varsa [companyId], yoksa []. */
 export type AllowedCompanyIds = number[];
 
-/** customSession ile genişletilmiş user tipi (companyId, role, companyName vb.) */
 export type SessionUserWithCompany = {
   id: string;
   companyId: number | null;
@@ -26,7 +24,6 @@ export type SessionUserWithCompany = {
   [key: string]: unknown;
 };
 
-/** session.user'ı SessionUserWithCompany olarak döndürür */
 export function getSessionUser(
   session: { user: unknown } | null
 ): SessionUserWithCompany | null {
@@ -38,6 +35,10 @@ export const auth = betterAuth({
   database: drizzleAdapter(db, {
     provider: 'pg'
   }),
+  session: {
+    expiresIn: 60 * 60,
+    updateAge: 60 * 60
+  },
   emailAndPassword: {
     enabled: true
   },
@@ -106,7 +107,6 @@ export const auth = betterAuth({
             'Hesabınız pasif. Giriş yapmak için yönetici ile iletişime geçin.'
         });
       }
-      // Tüm kullanıcıların şirket atanmış olmalı (tek şirket modu)
       if (row && row.isActive && row.companyId == null) {
         throw new APIError('FORBIDDEN', {
           message:

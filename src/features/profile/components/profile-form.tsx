@@ -83,7 +83,7 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
 
     const result = await updateProfile(formData);
     if (!result.success) {
-      form.setError('root', { message: result.error });
+      toast.error(result.error);
       return;
     }
 
@@ -108,12 +108,6 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
           onSubmit={form.handleSubmit(onSubmit)}
           className='space-y-8'
         >
-          {form.formState.errors.root?.message && (
-            <p className='text-destructive text-sm'>
-              {form.formState.errors.root.message}
-            </p>
-          )}
-
           <FormMediaPicker
             control={form.control}
             name='avatarMediaId'

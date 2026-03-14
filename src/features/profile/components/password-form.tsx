@@ -42,7 +42,7 @@ export default function PasswordForm() {
     );
 
     if (!result.success) {
-      form.setError('root', { message: result.error });
+      toast.error(result.error);
       return;
     }
 
@@ -68,12 +68,6 @@ export default function PasswordForm() {
           onSubmit={form.handleSubmit(onSubmit)}
           className='space-y-8'
         >
-          {form.formState.errors.root?.message && (
-            <p className='text-destructive text-sm'>
-              {form.formState.errors.root.message}
-            </p>
-          )}
-
           <FormInput
             control={form.control}
             name='currentPassword'

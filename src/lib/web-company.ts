@@ -1,3 +1,4 @@
+import { cache } from 'react';
 import { db } from '@/db';
 import {
   companies,
@@ -49,9 +50,27 @@ function getWebCompanyIdFromEnv(): number | null {
   return Number.isNaN(id) || id <= 0 ? null : id;
 }
 
+export type WebLayoutData = {
+  company: WebCompany | null;
+  headerMenuItems: WebMenuItem[];
+  footerMenuItems: WebMenuItem[];
+};
+
+/**
+ * Web alanında company, header ve footer verilerini tek istekte döner.
+ * React cache() ile request bazında global tutulur.
+ */
+export const getWebLayoutData = cache(async (): Promise<WebLayoutData> => {
+  const [company, headerMenuItems, footerMenuItems] = await Promise.all([
+    getWebCompany(),
+    getWebHeaderMenuItems(),
+    getWebFooterMenuItems()
+  ]);
+  return { company, headerMenuItems, footerMenuItems };
+});
+
 /**
  * PUBLIC_WEB_COMPANY_ID env ile belirlenen veya ilk şirketin ID'sini döner.
- * (web) route grubunda DB sorguları için companyId gerektiğinde kullanın.
  */
 export async function getWebCompanyId(): Promise<number | null> {
   const company = await getWebCompany();
@@ -60,9 +79,9 @@ export async function getWebCompanyId(): Promise<number | null> {
 
 /**
  * PUBLIC_WEB_COMPANY_ID env ile belirlenen veya ilk şirketin bilgilerini döner.
- * (web) route grubundaki tüm public veriler bu şirkete göre filtrelenir.
+ * Request bazında cache'lenir (getWebLayoutData ile paylaşılır).
  */
-export async function getWebCompany(): Promise<WebCompany | null> {
+export const getWebCompany = cache(async (): Promise<WebCompany | null> => {
   const envCompanyId = getWebCompanyIdFromEnv();
 
   const selectFields = {
@@ -135,10 +154,10 @@ export async function getWebCompany(): Promise<WebCompany | null> {
         phone: row.phone ?? null
       }
     : null;
-}
+});
 
 /** Web şirketinin header menü öğelerini döner (ağaç yapısı, kökten alt menüye sıralı). */
-export async function getWebHeaderMenuItems(): Promise<WebMenuItem[]> {
+export const getWebHeaderMenuItems = cache(async (): Promise<WebMenuItem[]> => {
   const companyId = await getWebCompanyId();
   if (!companyId) return [];
 
@@ -164,7 +183,7 @@ export async function getWebHeaderMenuItems(): Promise<WebMenuItem[]> {
     );
 
   return buildMenuTree(rows);
-}
+});
 
 function buildMenuTree(
   rows: {
@@ -186,8 +205,9 @@ function buildMenuTree(
       byParent.set(r.parentId, arr);
     }
   }
-  for (const arr of byParent.values())
-    arr.sort((a, b) => a.sortOrder - b.sortOrder);
+  Array.from(byParent.values()).forEach((arr) =>
+    arr.sort((a, b) => a.sortOrder - b.sortOrder)
+  );
 
   function toNode(row: (typeof rows)[0]): WebMenuItem {
     const children = (byParent.get(row.id) ?? []).map(toNode);
@@ -200,27 +220,8 @@ function buildMenuTree(
   return roots.map(toNode);
 }
 
-function buildOrderedMenuItems<
-  T extends { id: number; parentId: number | null; sortOrder: number }
->(items: T[]): T[] {
-  const roots = items
-    .filter((i) => !i.parentId)
-    .sort((a, b) => a.sortOrder - b.sortOrder);
-  const byParent = new Map<number, T[]>();
-  for (const i of items) {
-    if (i.parentId) {
-      const arr = byParent.get(i.parentId) ?? [];
-      arr.push(i);
-      byParent.set(i.parentId, arr);
-    }
-  }
-  for (const arr of byParent.values())
-    arr.sort((a, b) => a.sortOrder - b.sortOrder);
-  return roots.flatMap((r) => [r, ...(byParent.get(r.id) ?? [])]);
-}
-
 /** Web şirketinin footer menü öğelerini döner (kökten alt menüye sıralı). */
-export async function getWebFooterMenuItems(): Promise<WebMenuItem[]> {
+export const getWebFooterMenuItems = cache(async (): Promise<WebMenuItem[]> => {
   const companyId = await getWebCompanyId();
   if (!companyId) return [];
 
@@ -246,4 +247,4 @@ export async function getWebFooterMenuItems(): Promise<WebMenuItem[]> {
     );
 
   return buildMenuTree(rows);
-}
+});

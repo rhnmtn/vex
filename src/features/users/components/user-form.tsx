@@ -120,7 +120,7 @@ export default function UserForm({
 
       const result = await updateUserWithAvatar(initialData.id, formData);
       if (!result.success) {
-        form.setError('root', { message: result.error });
+        toast.error(result.error);
         return;
       }
 
@@ -128,7 +128,7 @@ export default function UserForm({
       if (newPassword) {
         const pwdResult = await updateUserPassword(initialData.id, newPassword);
         if (!pwdResult.success) {
-          form.setError('root', { message: pwdResult.error });
+          toast.error(pwdResult.error);
           return;
         }
       }
@@ -149,7 +149,7 @@ export default function UserForm({
 
     const result = await createUser(formData);
     if (!result.success) {
-      form.setError('root', { message: result.error });
+      toast.error(result.error);
       return;
     }
     toast.success('Kullanıcı oluşturuldu.');
@@ -175,11 +175,6 @@ export default function UserForm({
           onSubmit={form.handleSubmit(onSubmit)}
           className='space-y-8'
         >
-          {form.formState.errors.root?.message && (
-            <p className='text-destructive text-sm'>
-              {form.formState.errors.root.message}
-            </p>
-          )}
           <FormMediaPicker
             control={form.control}
             name='avatarMediaId'

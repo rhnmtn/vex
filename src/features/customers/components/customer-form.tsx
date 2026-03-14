@@ -21,6 +21,7 @@ import {
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 
 export type CustomerFormData = {
   id: number;
@@ -89,9 +90,10 @@ export default function CustomerForm({
         isActive: values.isActive
       });
       if (!result.success) {
-        form.setError('root', { message: result.error });
+        toast.error(result.error);
         return;
       }
+      toast.success('Müşteri güncellendi');
     } else {
       const result = await createCustomer({
         name: values.name,
@@ -107,9 +109,10 @@ export default function CustomerForm({
         isActive: values.isActive
       });
       if (!result.success) {
-        form.setError('root', { message: result.error });
+        toast.error(result.error);
         return;
       }
+      toast.success('Müşteri oluşturuldu');
     }
 
     router.push('/dashboard/customers');

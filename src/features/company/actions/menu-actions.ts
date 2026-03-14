@@ -40,8 +40,9 @@ function buildOrderedMenuItems<
       byParent.set(i.parentId, arr);
     }
   }
-  for (const arr of byParent.values())
-    arr.sort((a, b) => a.sortOrder - b.sortOrder);
+  Array.from(byParent.values()).forEach((arr) =>
+    arr.sort((a, b) => a.sortOrder - b.sortOrder)
+  );
   return roots.flatMap((r) => [r, ...(byParent.get(r.id) ?? [])]);
 }
 
