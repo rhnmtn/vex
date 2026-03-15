@@ -141,13 +141,13 @@ export function PublicHeader({
                   company.logoLight ?? company.logoDark ?? company.logo ?? ''
                 }
                 alt={brandName}
-                className='h-8 max-h-8 w-auto max-w-[160px] object-contain object-left sm:max-w-[200px]'
+                className='h-9 max-h-9 w-auto max-w-[180px] object-contain object-left sm:max-w-[220px]'
               />
             </Link>
           ) : (
             <Logo
               href='/'
-              className='h-8 w-auto max-w-[160px] shrink-0 sm:max-w-[200px]'
+              className='h-9 w-auto max-w-[180px] shrink-0 sm:max-w-[220px]'
               variant='full'
             />
           )}

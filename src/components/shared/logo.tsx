@@ -7,79 +7,60 @@ interface LogoProps {
   href?: string;
 }
 
+/** KK sembolü - flex ile metinle hizalı */
+const LogoSymbol = ({ className }: { className?: string }) => (
+  <svg
+    viewBox='0 0 32 32'
+    fill='none'
+    xmlns='http://www.w3.org/2000/svg'
+    className={cn('shrink-0', className)}
+    aria-hidden
+  >
+    <g transform='translate(0, 1.78) scale(0.17778) translate(-60, -40)'>
+      <path
+        d='M60 40h40v160H60z M145 40h40l-50 90 50 70h-40l-50-70z'
+        fill='var(--chart-1)'
+      />
+      <path d='M200 40h40l-50 90 50 70h-40l-50-70z' fill='var(--foreground)' />
+    </g>
+  </svg>
+);
+
 export function Logo({
   className = '',
   variant = 'full',
   href = '/'
 }: LogoProps) {
-  const LogoSvg = (
-    <svg
-      viewBox='0 0 600 100'
-      fill='none'
-      xmlns='http://www.w3.org/2000/svg'
-      preserveAspectRatio='xMinYMid meet'
-      className={cn('transition-all duration-500', className)}
-      aria-hidden
-    >
-      {/* KK Sembolü - Tema renkleri (0–72 birim) */}
-      <g transform='translate(0, 15) scale(0.28)'>
-        {/* Sol K - Vurgu rengi (chart-1: turuncu/amber) */}
-        <path
-          d='M60 40h40v160H60z M145 40h40l-50 90 50 70h-40l-50-70z'
-          fill='var(--chart-1)'
-          className='transition-colors duration-300'
-        />
-
-        {/* Sağ K - Metin rengi (foreground) */}
-        <path
-          d='M200 40h40l-50 90 50 70h-40l-50-70z'
-          fill='var(--foreground)'
-          className='transition-colors duration-300'
-        />
-      </g>
-
-      {/* KiralaKal Yazısı - KK sembolünden sonra (grup x≈75) */}
+  const content = (
+    <>
+      <LogoSymbol className='h-5 w-5 sm:h-6 sm:w-6' />
       {variant === 'full' && (
-        <g transform='translate(75, 0)'>
-          <text
-            x='0'
-            y='55'
-            textAnchor='start'
-            dominantBaseline='middle'
-            fill='var(--foreground)'
-            className='transition-colors duration-300 select-none'
-            style={{
-              fontFamily: 'inherit',
-              fontSize: '50px',
-              letterSpacing: '0.05em'
-            }}
-          >
-            <tspan style={{ fontWeight: 700 }}>KiralaKal</tspan>
-            <tspan style={{ fontWeight: 300 }}>.com</tspan>
-          </text>
-
-          {/* Alt çizgi */}
-          <path
-            d='M0 70h300'
-            stroke='var(--foreground)'
-            strokeWidth='0.5'
-            strokeLinecap='round'
-            className='opacity-20 transition-opacity duration-300'
-          />
-        </g>
+        <span className='text-foreground text-sm leading-none font-normal tracking-wide whitespace-nowrap select-none sm:text-base'>
+          <span className='font-bold'>KiralaKal</span>
+          <span className='font-light'>.com</span>
+        </span>
       )}
-    </svg>
+    </>
+  );
+
+  const wrapperClass = cn(
+    'inline-flex items-center justify-center gap-1.5',
+    variant === 'full' && 'gap-2'
   );
 
   return href ? (
     <Link
       href={href}
-      className='focus-visible:ring-ring block rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-offset-2'
+      className={cn(
+        'focus-visible:ring-ring inline-flex items-center rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
+        wrapperClass,
+        className
+      )}
       aria-label='KiralaKal ana sayfa'
     >
-      {LogoSvg}
+      {content}
     </Link>
   ) : (
-    LogoSvg
+    <span className={cn(wrapperClass, className)}>{content}</span>
   );
 }
