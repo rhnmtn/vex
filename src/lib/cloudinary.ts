@@ -12,9 +12,24 @@ if (cloudName && apiKey && apiSecret) {
   });
 }
 
-export const isCloudinaryConfigured = Boolean(
-  cloudName && apiKey && apiSecret
-);
+export const isCloudinaryConfigured = Boolean(cloudName && apiKey && apiSecret);
+
+/**
+ * Cloudinary URL'ine delivery optimizasyonu ekler (genişlik, kalite, format).
+ * Hero için: yüksek çözünürlük, en iyi kalite.
+ */
+export function getOptimizedImageUrl(
+  url: string,
+  options?: { width?: number; quality?: string }
+): string {
+  if (!url.includes('res.cloudinary.com') || !url.includes('/image/upload/'))
+    return url;
+  if (url.includes('/w_') || url.includes(',c_scale,')) return url;
+  const width = options?.width ?? 2560;
+  const quality = options?.quality ?? 'auto:best';
+  const transform = `w_${width},c_scale,q_${quality},f_auto`;
+  return url.replace('/image/upload/', `/image/upload/${transform}/`);
+}
 
 export interface CloudinaryUploadResult {
   publicId: string;

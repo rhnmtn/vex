@@ -1,4 +1,4 @@
-import { BlogCard, Hero } from '@/components/shared';
+import { BlogCard, FeaturesSection, Hero } from '@/components/shared';
 import { getPublicBlogData } from '@/features/posts/actions/get-public-blog';
 import { BlogEmptyState } from '@/features/posts/components/blog-empty-state';
 import type { PublicCategoryWithPosts } from '@/features/posts/actions/get-public-blog';
@@ -20,10 +20,10 @@ export async function generateMetadata(): Promise<Metadata> {
 
 function CategorySection({ category }: { category: PublicCategoryWithPosts }) {
   return (
-    <section className='space-y-6'>
-      <div className='flex items-center gap-3'>
+    <section className='space-y-8'>
+      <div className='flex items-center gap-4'>
         {category.bannerImagePath && (
-          <div className='relative h-10 w-10 overflow-hidden rounded-lg'>
+          <div className='relative h-12 w-12 shrink-0 overflow-hidden rounded-xl'>
             <Image
               src={category.bannerImagePath}
               alt={category.name}
@@ -32,7 +32,7 @@ function CategorySection({ category }: { category: PublicCategoryWithPosts }) {
             />
           </div>
         )}
-        <h2 className='text-foreground text-xl font-semibold'>
+        <h2 className='text-foreground text-xl font-semibold sm:text-2xl'>
           {category.name}
         </h2>
       </div>
@@ -59,6 +59,8 @@ export default async function HomePage() {
       {/* Hero: tam genişlik, normal içerikten daha geniş */}
       <Hero
         company={company}
+        title='KiralaKal'
+        subtitle='Hayalinizdeki villa tatiline güvenle ulaşın'
         actions={[
           ...(totalPosts > 0
             ? [
@@ -73,9 +75,11 @@ export default async function HomePage() {
         ]}
       />
 
-      {/* Blog Content: max-w-7xl ile sınırlı */}
+      <FeaturesSection />
+
+      {/* Blog Content */}
       <section
-        className='mx-auto w-full max-w-7xl px-4 py-12 sm:px-6 lg:px-8'
+        className='bg-background mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 lg:px-8'
         aria-labelledby='blog-heading'
       >
         <h2 id='blog-heading' className='sr-only'>
@@ -85,6 +89,9 @@ export default async function HomePage() {
           <BlogEmptyState />
         ) : (
           <div className='space-y-16'>
+            <h2 className='text-foreground text-center text-2xl font-bold sm:text-3xl'>
+              Yazılar
+            </h2>
             {categories.map((category) => (
               <CategorySection key={category.id} category={category} />
             ))}

@@ -1,0 +1,6 @@
+<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" fill="none">
+  <g transform="translate(0, 1.78) scale(0.17778) translate(-60, -40)">
+    <path d="M60 40h40v160H60z M145 40h40l-50 90 50 70h-40l-50-70z" fill="#FF6B35"/>
+    <path d="M200 40h40l-50 90 50 70h-40l-50-70z" fill="#1F2937"/>
+  </g>
+</svg>

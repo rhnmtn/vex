@@ -32,9 +32,8 @@ export function BlogCard({ post, compact = false }: BlogCardProps) {
     >
       <Card
         className={cn(
-          'border-border/80 bg-card flex h-full min-h-0 flex-col overflow-hidden p-0 shadow-sm transition-all duration-300 ease-out',
-          'hover:border-border hover:shadow-md hover:shadow-black/5 dark:hover:shadow-black/15',
-          'hover:-translate-y-0.5'
+          'border-border bg-card flex h-full min-h-0 flex-col overflow-hidden p-0 shadow-sm transition-shadow duration-200',
+          'hover:shadow-md'
         )}
       >
         {/* Image */}
