@@ -1,6 +1,7 @@
 import type { WebCompany, WebMenuItem } from '@/lib/web-company';
 import { flattenMenuItems } from '@/lib/web-company';
 import { DEFAULT_BRAND_NAME, DEFAULT_SITE_DESCRIPTION } from '@/constants/site';
+import { Logo } from '@/components/shared/logo';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -31,8 +32,8 @@ export function PublicFooter({ company = null, menuItems }: PublicFooterProps) {
         <div className='grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-4'>
           {/* Marka */}
           <div className='flex flex-col gap-4 lg:col-span-2'>
-            <Link href='/' className='flex items-center gap-3'>
-              {logoPath ? (
+            {logoPath ? (
+              <Link href='/' className='flex items-center justify-start gap-3'>
                 <div className='relative h-10 w-24'>
                   <Image
                     src={logoPath}
@@ -42,12 +43,14 @@ export function PublicFooter({ company = null, menuItems }: PublicFooterProps) {
                     sizes='96px'
                   />
                 </div>
-              ) : (
-                <span className='text-foreground text-lg font-semibold'>
-                  {brandName}
-                </span>
-              )}
-            </Link>
+              </Link>
+            ) : (
+              <Logo
+                href='/'
+                className='h-9 self-start sm:h-10'
+                variant='full'
+              />
+            )}
             <p className='text-muted-foreground max-w-sm text-sm leading-relaxed'>
               {description}
             </p>
