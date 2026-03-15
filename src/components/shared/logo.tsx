@@ -17,6 +17,7 @@ export function Logo({
       viewBox='0 0 600 100'
       fill='none'
       xmlns='http://www.w3.org/2000/svg'
+      preserveAspectRatio='xMinYMid meet'
       className={cn('transition-all duration-500', className)}
       aria-hidden
     >
@@ -73,7 +74,7 @@ export function Logo({
   return href ? (
     <Link
       href={href}
-      className='focus-visible:ring-ring rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-offset-2'
+      className='focus-visible:ring-ring block rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-offset-2'
       aria-label='KiralaKal ana sayfa'
     >
       {LogoSvg}

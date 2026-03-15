@@ -124,26 +124,34 @@ export function PublicHeader({
 
   return (
     <header
-      className='bg-background/95 supports-backdrop-filter:bg-background/60 sticky top-0 z-50 backdrop-blur'
+      className='bg-background/95 supports-backdrop-filter:bg-background/60 sticky top-0 z-50 overflow-x-hidden backdrop-blur'
       role='banner'
     >
-      <div className='mx-auto flex h-16 w-full max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8'>
-        {(company?.logoLight ?? company?.logoDark ?? company?.logo) ? (
-          <Link
-            href='/'
-            className='shrink-0'
-            aria-label={`${brandName} ana sayfa`}
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={company.logoLight ?? company.logoDark ?? company.logo ?? ''}
-              alt={brandName}
-              className='h-8 w-auto object-contain'
+      <div className='mx-auto flex h-16 w-full max-w-7xl items-center justify-between gap-4 overflow-hidden px-4 sm:px-6 lg:px-8'>
+        <div className='flex min-w-0 items-center overflow-hidden'>
+          {(company?.logoLight ?? company?.logoDark ?? company?.logo) ? (
+            <Link
+              href='/'
+              className='block shrink-0'
+              aria-label={`${brandName} ana sayfa`}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={
+                  company.logoLight ?? company.logoDark ?? company.logo ?? ''
+                }
+                alt={brandName}
+                className='h-8 max-h-8 w-auto max-w-[160px] object-contain object-left sm:max-w-[200px]'
+              />
+            </Link>
+          ) : (
+            <Logo
+              href='/'
+              className='h-8 w-auto max-w-[160px] shrink-0 sm:max-w-[200px]'
+              variant='full'
             />
-          </Link>
-        ) : (
-          <Logo href='/' className='h-8 w-auto min-w-[140px]' variant='full' />
-        )}
+          )}
+        </div>
 
         {/* Desktop nav */}
         <NavigationMenu className='hidden md:flex'>
@@ -197,7 +205,7 @@ export function PublicHeader({
         </NavigationMenu>
 
         {/* CTA + Mobile menu */}
-        <div className='flex items-center gap-2'>
+        <div className='flex shrink-0 items-center gap-2'>
           <Button
             asChild
             variant='default'
