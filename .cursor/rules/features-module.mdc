@@ -21,10 +21,26 @@ features/[domain]/
 
 ## Actions
 - Dosya başına `'use server'`
-- `getTenantContext(await headers())` ile tenant al
-- **Liste:** `effectiveAllowed` veya `computeEffectiveAllowed()` ile filtrele
-- **Create:** `effectiveCompanyId` ile `companyId` ata; null ise hata dön
-- **Update/Delete:** Kaydın `companyId`'si `effectiveAllowed` içinde mi kontrol et
+- `auth.api.getSession({ headers: await headers() })` ile session al
+- `(session?.user as SessionUserWithCompany)?.companyId` ile şirket id kullan
+- **Liste:** `companyId` ile filtrele; null ise boş dön veya hata
+- **Create:** `companyId` ile `companyId` ata; null ise hata dön
+- **Update/Delete:** Kaydın `companyId`'si session'daki `companyId` ile eşleşmeli
+
+**Örnek:**
+```typescript
+'use server';
+import { auth, type SessionUserWithCompany } from '@/lib/auth';
+import { headers } from 'next/headers';
+
+export async function getItems() {
+  const session = await auth.api.getSession({ headers: await headers() });
+  const companyId = (session?.user as SessionUserWithCompany)?.companyId;
+  if (companyId == null) return [];
+
+  return db.select().from(table).where(eq(table.companyId, companyId));
+}
+```
 
 ## Schemas
 - Zod ile form validasyonu
@@ -35,4 +51,4 @@ features/[domain]/
 ## Components
 - `*-view-page.tsx` — Server component; data fetch, `*-form` render
 - `*-form.tsx` — Client; `useForm`, `zodResolver`, submit handler
-- `*-listing.tsx` — Server; searchParams, tenant, action çağrısı, table render
+- `*-listing.tsx` — Server; searchParams, session/companyId, action çağrısı, table render

@@ -361,6 +361,48 @@ export type NewPostCategoryAssignment = InferInsertModel<
   typeof postCategoryAssignments
 >;
 
+// Sayfalar (şirket kapsamlı, başlık, görsel, içerik, meta)
+export const pages = pgTable(
+  'pages',
+  {
+    id: serial('id').primaryKey(),
+    isActive: boolean('is_active').default(true),
+    createdAt: timestamp('created_at', { mode: 'date' }).defaultNow(),
+    updatedAt: timestamp('updated_at', { mode: 'date' }).defaultNow(),
+    deletedAt: timestamp('deleted_at', { mode: 'date' }),
+    createdByAuthId: text('created_by_auth_id')
+      .notNull()
+      .references(() => user.id),
+    updatedByAuthId: text('updated_by_auth_id')
+      .notNull()
+      .references(() => user.id),
+    companyId: integer('company_id')
+      .notNull()
+      .references(() => companies.id),
+    title: varchar('title', { length: 500 }).notNull(),
+    slug: varchar('slug', { length: 500 }).notNull(),
+    featuredImageId: integer('featured_image_id').references(() => media.id),
+    content: text('content'),
+    metaTitle: varchar('meta_title', { length: 255 }),
+    metaDescription: varchar('meta_description', { length: 500 })
+  },
+  (table) => ({
+    companyIdIdx: index('pages_company_id_idx').on(table.companyId),
+    slugCompanyDeletedAtIdx: uniqueIndex(
+      'pages_slug_company_deleted_at_idx'
+    ).on(table.slug, table.companyId, table.deletedAt),
+    createdByAuthIdIdx: index('pages_created_by_auth_id_idx').on(
+      table.createdByAuthId
+    ),
+    companyIdDeletedAtNullIdx: index('pages_company_id_deleted_at_null_idx')
+      .on(table.companyId)
+      .where(sql`${table.deletedAt} IS NULL`)
+  })
+);
+
+export type Page = InferSelectModel<typeof pages>;
+export type NewPage = InferInsertModel<typeof pages>;
+
 // Header menü öğeleri (parent_id ile hiyerarşi, sort_order ile sıralama)
 export const companyHeaderMenuItems = pgTable(
   'company_header_menu_items',
@@ -467,6 +509,7 @@ export const companiesRelations = relations(companies, ({ one, many }) => ({
   }),
   postCategories: many(postCategories),
   posts: many(posts),
+  pages: many(pages),
   headerMenuItems: many(companyHeaderMenuItems),
   footerMenuItems: many(companyFooterMenuItems),
   createdBy: one(user, {
@@ -493,7 +536,8 @@ export const userRelations = relations(user, ({ one, many }) => ({
   customers: many(customers),
   media: many(media),
   postCategories: many(postCategories),
-  posts: many(posts)
+  posts: many(posts),
+  pages: many(pages)
 }));
 
 export const sessionRelations = relations(session, ({ one }) => ({
@@ -565,6 +609,21 @@ export const postCategoryAssignmentsRelations = relations(
     category: one(postCategories)
   })
 );
+
+export const pagesRelations = relations(pages, ({ one }) => ({
+  company: one(companies),
+  featuredImage: one(media),
+  createdBy: one(user, {
+    fields: [pages.createdByAuthId],
+    references: [user.id],
+    relationName: 'pageCreatedBy'
+  }),
+  updatedBy: one(user, {
+    fields: [pages.updatedByAuthId],
+    references: [user.id],
+    relationName: 'pageUpdatedBy'
+  })
+}));
 
 export const companyHeaderMenuItemsRelations = relations(
   companyHeaderMenuItems,

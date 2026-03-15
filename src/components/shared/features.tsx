@@ -60,7 +60,7 @@ const STEPS = [
   { num: 3, text: 'Güvenle rezervasyon yapın' }
 ];
 
-export function FeaturesSection() {
+export function Features() {
   return (
     <section className='bg-muted/30' aria-labelledby='features-heading'>
       <div className='mx-auto w-full max-w-7xl px-4 pt-8 pb-16 sm:px-6 lg:px-8 lg:pt-10 lg:pb-20'>

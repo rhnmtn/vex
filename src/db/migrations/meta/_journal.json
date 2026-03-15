@@ -36,6 +36,13 @@
       "when": 1773800000000,
       "tag": "0004_menu_parent_order",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1773900000000,
+      "tag": "0005_pages",
+      "breakpoints": true
     }
   ]
 }

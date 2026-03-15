@@ -90,6 +90,36 @@ export const postsInfoContent: InfobarContent = {
   ]
 };
 
+export const pagesInfoContent: InfobarContent = {
+  title: 'Sayfa Yönetimi',
+  sections: [
+    {
+      title: 'Genel Bakış',
+      description:
+        'Sayfalar bölümü statik sayfalarınızı (Hakkımızda, Gizlilik vb.) yönetmenizi sağlar. Başlık, sayfa görseli, Lexical editör ile içerik ve meta alanları.',
+      links: []
+    },
+    {
+      title: 'Yeni Sayfa',
+      description:
+        '"Yeni Ekle" butonu ile yeni sayfa oluşturabilirsiniz. Başlık ve slug zorunludur. Sayfa görseli, içerik ve meta alanları opsiyoneldir.',
+      links: []
+    },
+    {
+      title: 'Düzenleme',
+      description:
+        'Tablodaki satır işlemleri menüsünden "Düzenle" ile sayfa bilgilerini güncelleyebilirsiniz.',
+      links: []
+    },
+    {
+      title: 'Silme',
+      description:
+        'Sayfayı silmek soft delete yapılır. Silinen sayfalar listede görünmez.',
+      links: []
+    }
+  ]
+};
+
 export const postCategoriesInfoContent: InfobarContent = {
   title: 'Yazı Kategorileri',
   sections: [

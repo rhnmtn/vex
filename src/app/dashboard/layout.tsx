@@ -12,9 +12,15 @@ import { cookies, headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 
 export const viewport = formViewport;
+export const dynamic = 'force-dynamic';
 
 export async function generateMetadata(): Promise<Metadata> {
-  const session = await auth.api.getSession({ headers: await headers() });
+  let session = null;
+  try {
+    session = await auth.api.getSession({ headers: await headers() });
+  } catch {
+    // Metadata için session hatası kritik değil
+  }
   const u = getSessionUser(session);
   const companyName = (u as SessionUserWithCompany)?.companyName ?? 'Vex';
   return {
@@ -32,7 +38,17 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await auth.api.getSession({ headers: await headers() });
+  let session;
+  try {
+    session = await auth.api.getSession({ headers: await headers() });
+  } catch (err) {
+    const cause = err instanceof Error ? err.cause : null;
+    console.error('[DashboardLayout] getSession failed:', {
+      message: err instanceof Error ? err.message : String(err),
+      cause: cause instanceof Error ? cause.message : cause
+    });
+    throw err;
+  }
   if (!session) {
     redirect('/auth/sign-in');
   }

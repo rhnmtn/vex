@@ -12,36 +12,53 @@ alwaysApply: false
 - **Migration:** `pnpm db:generate` → `pnpm db:migrate`
 - **Config:** `src/db/drizzle.config.ts`
 
-## Tenant Context (Çok Kiracılı)
-`getTenantContext(await headers())` ile tek çağrıda tüm context alınır.
+## Tenant Modeli: Tek Şirket (Single Company)
+
+**Bu proje tek-şirket modeli kullanır.** Her kullanıcı tek bir şirkete (`companyId`) bağlıdır. Session'dan `companyId` alınır; çoklu şirket seçimi veya `getTenantContext` yoktur.
 
 | Alan | Kaynak | Açıklama |
 |------|--------|----------|
-| `allowedCompanyIds` | Session | Kullanıcının yetkili olduğu şirket id listesi; null = session yok |
-| `selectedCompanyId` | Cookie | Sidebar'dan seçilen şirket; `SELECTED_COMPANY_COOKIE_NAME` |
-| `effectiveAllowed` | Hesaplanan | Liste sorguları için: seçili yetkiliyse [seçili], değilse tüm yetkililer |
-| `effectiveCompanyId` | Hesaplanan | Create için: seçili yetkiliyse seçili, değilse ilk yetkili |
+| `companyId` | Session (`SessionUserWithCompany`) | Kullanıcının bağlı olduğu şirket id; null = atanmamış |
+| `companyName` | Session | Şirket kısa adı (shortName) veya adı |
 
-**Terminoloji:** Session'dan gelen `allowedCompanyIds` — kullanıcının yetkili olduğu şirket id listesi (çoğul "yetkili şirketler" yerine "yetkili şirket" kavramı kullanılır).
+**Session almak:**
+```typescript
+const session = await auth.api.getSession({ headers: await headers() });
+const companyId = (session?.user as SessionUserWithCompany)?.companyId ?? null;
+```
 
 ## Liste Sorguları
 ```typescript
-const { allowedCompanyIds, selectedCompanyId } = await getTenantContext(await headers());
-const effectiveAllowed = computeEffectiveAllowed(allowedCompanyIds, selectedCompanyId);
+const session = await auth.api.getSession({ headers: await headers() });
+const companyId = (session?.user as SessionUserWithCompany)?.companyId;
 
-if (effectiveAllowed != null && effectiveAllowed.length === 0) {
-  return { data: [], total: 0 }; // Yetkili şirket yok
+if (companyId == null) {
+  return { data: [], total: 0 }; // veya notFound(), redirect
 }
-conditions.push(inArray(table.companyId, effectiveAllowed ?? []));
+conditions.push(eq(table.companyId, companyId));
 ```
 
 ## Create İşlemleri
 ```typescript
-const { effectiveCompanyId } = await getTenantContext(await headers());
-if (!effectiveCompanyId) {
-  return { success: false, error: 'Yetkili şirket bulunamadı' };
+const session = await auth.api.getSession({ headers: await headers() });
+const companyId = (session?.user as SessionUserWithCompany)?.companyId;
+
+if (!companyId) {
+  return { success: false, error: 'Şirket atanmamış' };
 }
-await db.insert(table).values({ ...data, companyId: effectiveCompanyId });
+await db.insert(table).values({ ...data, companyId });
+```
+
+## Update/Delete İşlemleri
+```typescript
+const session = await auth.api.getSession({ headers: await headers() });
+const companyId = (session?.user as SessionUserWithCompany)?.companyId;
+
+if (companyId == null) {
+  return { success: false, error: 'Şirket atanmamış' };
+}
+// Koşula companyId ekle
+conditions.push(eq(table.companyId, companyId));
 ```
 
 ## Soft Delete

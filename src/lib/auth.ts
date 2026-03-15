@@ -5,7 +5,13 @@ import { nextCookies } from 'better-auth/next-js';
 import { admin, customSession } from 'better-auth/plugins';
 import { eq } from 'drizzle-orm';
 import { db } from '@/db';
-import { companies, user } from '@/db/drizzle-schema';
+import {
+  account,
+  companies,
+  session,
+  user,
+  verification
+} from '@/db/drizzle-schema';
 
 const baseURL =
   process.env.BETTER_AUTH_URL ??
@@ -33,11 +39,12 @@ export function getSessionUser(
 export const auth = betterAuth({
   baseURL,
   database: drizzleAdapter(db, {
-    provider: 'pg'
+    provider: 'pg',
+    schema: { user, session, account, verification }
   }),
   session: {
     expiresIn: 60 * 60,
-    updateAge: 60 * 60
+    updateAge: 60
   },
   emailAndPassword: {
     enabled: true

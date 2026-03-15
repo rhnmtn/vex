@@ -97,7 +97,7 @@ export function OrgSwitcher() {
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
-              <Link href='/dashboard/company/menu'>
+              <Link href='/dashboard/menu'>
                 <IconMenu2 className='mr-2 h-4 w-4' />
                 Menü Bilgileri
               </Link>

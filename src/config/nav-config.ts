@@ -30,6 +30,14 @@ export const navItems: NavItem[] = [
     items: []
   },
   {
+    title: 'Sayfalar',
+    url: '/dashboard/pages',
+    icon: 'page',
+    shortcut: ['p', 'p'],
+    isActive: false,
+    items: []
+  },
+  {
     title: 'Blog',
     url: '#',
     icon: 'post',

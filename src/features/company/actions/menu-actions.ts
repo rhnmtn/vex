@@ -148,7 +148,7 @@ export async function createHeaderMenuItem(input: {
 
   revalidatePath('/');
   revalidatePath('/dashboard/company');
-  revalidatePath('/dashboard/company/menu');
+  revalidatePath('/dashboard/menu');
   return inserted?.id
     ? { success: true, id: inserted.id }
     : { success: false, error: 'Kayıt oluşturulamadı' };
@@ -184,7 +184,7 @@ export async function createFooterMenuItem(input: {
 
   revalidatePath('/');
   revalidatePath('/dashboard/company');
-  revalidatePath('/dashboard/company/menu');
+  revalidatePath('/dashboard/menu');
   return inserted?.id
     ? { success: true, id: inserted.id }
     : { success: false, error: 'Kayıt oluşturulamadı' };
@@ -234,7 +234,7 @@ export async function updateHeaderMenuItem(
 
   revalidatePath('/');
   revalidatePath('/dashboard/company');
-  revalidatePath('/dashboard/company/menu');
+  revalidatePath('/dashboard/menu');
   return updated
     ? { success: true }
     : { success: false, error: 'Kayıt bulunamadı' };
@@ -284,7 +284,7 @@ export async function updateFooterMenuItem(
 
   revalidatePath('/');
   revalidatePath('/dashboard/company');
-  revalidatePath('/dashboard/company/menu');
+  revalidatePath('/dashboard/menu');
   return updated
     ? { success: true }
     : { success: false, error: 'Kayıt bulunamadı' };
@@ -309,7 +309,7 @@ export async function deleteHeaderMenuItem(
 
   revalidatePath('/');
   revalidatePath('/dashboard/company');
-  revalidatePath('/dashboard/company/menu');
+  revalidatePath('/dashboard/menu');
   return deleted
     ? { success: true }
     : { success: false, error: 'Kayıt bulunamadı' };
@@ -350,7 +350,7 @@ export async function reorderHeaderMenuItems(
     });
     revalidatePath('/');
     revalidatePath('/dashboard/company');
-    revalidatePath('/dashboard/company/menu');
+    revalidatePath('/dashboard/menu');
     return { success: true };
   } catch {
     return { success: false, error: 'Sıralama güncellenemedi' };
@@ -392,7 +392,7 @@ export async function reorderFooterMenuItems(
     });
     revalidatePath('/');
     revalidatePath('/dashboard/company');
-    revalidatePath('/dashboard/company/menu');
+    revalidatePath('/dashboard/menu');
     return { success: true };
   } catch {
     return { success: false, error: 'Sıralama güncellenemedi' };
@@ -418,7 +418,7 @@ export async function deleteFooterMenuItem(
 
   revalidatePath('/');
   revalidatePath('/dashboard/company');
-  revalidatePath('/dashboard/company/menu');
+  revalidatePath('/dashboard/menu');
   return deleted
     ? { success: true }
     : { success: false, error: 'Kayıt bulunamadı' };

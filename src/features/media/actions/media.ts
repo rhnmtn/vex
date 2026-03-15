@@ -6,6 +6,7 @@ import { db } from '@/db';
 import {
   companies,
   media,
+  pages,
   postCategories,
   posts,
   user,
@@ -111,15 +112,17 @@ export async function uploadMedia(
 }
 
 /**
- * Medya başka yerde (post content, featured image, banner, logo, avatar vb.) kullanılıyor mu?
+ * Medya başka yerde (post content, page content, featured image, banner, logo, avatar vb.) kullanılıyor mu?
  * excludePostId: Bu post'un content'ini kontrol dışı bırak (güncelleme sırasında)
  * excludePostCategoryId: Bu kategori'nin content'ini kontrol dışı bırak (güncelleme sırasında)
+ * excludePageId: Bu sayfanın content'ini kontrol dışı bırak (güncelleme sırasında)
  */
 export async function isMediaUsedElsewhere(
   mediaId: number,
   companyId: number,
   excludePostId?: number,
-  excludePostCategoryId?: number
+  excludePostCategoryId?: number,
+  excludePageId?: number
 ): Promise<boolean> {
   const [inFeaturedImage] = await db
     .select({ id: posts.id })
@@ -204,6 +207,34 @@ export async function isMediaUsedElsewhere(
     }
   }
 
+  const pagesWithContent = await db
+    .select({ id: pages.id, content: pages.content })
+    .from(pages)
+    .where(
+      and(
+        eq(pages.companyId, companyId),
+        sql`${pages.content} IS NOT NULL`,
+        sql`${pages.deletedAt} IS NULL`,
+        ...(excludePageId ? [ne(pages.id, excludePageId)] : [])
+      )
+    );
+
+  for (const row of pagesWithContent) {
+    if (extractMediaIdsFromLexicalContent(row.content).includes(mediaId)) {
+      return true;
+    }
+  }
+
+  const [inPageFeatured] = await db
+    .select({ id: pages.id })
+    .from(pages)
+    .where(
+      and(eq(pages.companyId, companyId), eq(pages.featuredImageId, mediaId))
+    )
+    .limit(1);
+
+  if (inPageFeatured) return true;
+
   return false;
 }
 
@@ -226,6 +257,7 @@ export async function deleteOrphanedMediaFromPostContent(
       mediaId,
       companyId,
       postId,
+      undefined,
       undefined
     );
     if (!used) {
@@ -257,7 +289,37 @@ export async function deleteOrphanedMediaFromPostCategoryContent(
       mediaId,
       companyId,
       undefined,
-      postCategoryId
+      postCategoryId,
+      undefined
+    );
+    if (!used) {
+      const result = await deleteMedia(mediaId);
+      if (!result.success) {
+        return result;
+      }
+    }
+  }
+
+  return { success: true };
+}
+
+export async function deleteOrphanedMediaFromPageContent(
+  companyId: number,
+  pageId: number,
+  oldContent: string | null | undefined,
+  newContent: string | null | undefined
+): Promise<{ success: true } | { success: false; error: string }> {
+  const oldIds = extractMediaIdsFromLexicalContent(oldContent);
+  const newIds = new Set(extractMediaIdsFromLexicalContent(newContent));
+  const orphanedIds = oldIds.filter((id) => !newIds.has(id));
+
+  for (const mediaId of orphanedIds) {
+    const used = await isMediaUsedElsewhere(
+      mediaId,
+      companyId,
+      undefined,
+      undefined,
+      pageId
     );
     if (!used) {
       const result = await deleteMedia(mediaId);
@@ -323,6 +385,10 @@ export async function deleteMedia(
       .update(posts)
       .set({ featuredImageId: null })
       .where(eq(posts.featuredImageId, id));
+    await db
+      .update(pages)
+      .set({ featuredImageId: null })
+      .where(eq(pages.featuredImageId, id));
     await db
       .update(user)
       .set({ avatarMediaId: null })
